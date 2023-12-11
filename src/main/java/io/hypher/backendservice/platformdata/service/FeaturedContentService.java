@@ -1,5 +1,6 @@
 package io.hypher.backendservice.platformdata.service;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -15,8 +16,31 @@ public class FeaturedContentService {
     @Autowired
     private FeaturedContentRepository featuredContentRepository;
 
+    public Optional<FeaturedContent> save(FeaturedContent featuredContent){
+        FeaturedContent savedFeaturedContent = featuredContentRepository.save(featuredContent);
+        return Optional.of(savedFeaturedContent);
+    }
+
     public Optional<FeaturedContent> findById(UUID featuredContentId){
         return featuredContentRepository.findById(featuredContentId);
+    }
+
+    public List<FeaturedContent> findAll(){
+        return featuredContentRepository.findAll();
+    }
+
+    public String delete(FeaturedContent featuredContent){
+
+        boolean featuredContentDeleted;
+
+        try {
+            featuredContentRepository.delete(featuredContent);
+            featuredContentDeleted = true;
+        } catch (Exception e) {
+            featuredContentDeleted = false;
+        }
+
+        return "FeaturedContent deleted? -> " + featuredContentDeleted;
     }
 
 }

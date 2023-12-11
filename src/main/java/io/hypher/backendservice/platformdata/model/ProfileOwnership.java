@@ -24,6 +24,9 @@ public class ProfileOwnership {
     @Column(name = "profile_id")
     UUID profileId;
 
+    // default constructor (hibernate.InstantiationException)
+    public ProfileOwnership(){}
+
     public ProfileOwnership(UUID profileOwnershipId, UUID accountId, UUID profileId) {
         this.profileOwnershipId = profileOwnershipId;
         this.accountId = accountId;

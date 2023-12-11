@@ -22,7 +22,7 @@ public class Account {
     String primaryEmail;
 
     // default constructor (hibernate.InstantiationException)
-    public Account(){};
+    public Account(){}
 
     public Account(UUID accountId, String primaryEmail) {
         this.accountId = accountId;

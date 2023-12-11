@@ -33,25 +33,25 @@ public class AccountController {
     AccountService accountService;
 
     @PostMapping("/accounts")
-    public Optional<Account> addAccount(@RequestBody Account account) {
+    public Optional<Account> create(@RequestBody Account account) {
         return accountService.save(account);        
     }
     
     
     @GetMapping("/accounts")
-    public List<Account> getAllAccounts() {
+    public List<Account> getAll() {
         return accountService.findAll();   
     }
 
     @GetMapping("/accounts/{id}")
-    public Optional<Account> getAccount(@PathVariable(value = "id") UUID accountId) {
+    public Optional<Account> getById(@PathVariable(value = "id") UUID accountId) {
         
         return accountService.findById(accountId);
     }
 
 
     @PutMapping("/accounts/{id}")
-    public ResponseEntity<Account> updateAccount(@PathVariable(value = "id") UUID accountId, @RequestBody Account updatedAccount) throws ResourceNotFoundException, WrongBodyException{
+    public ResponseEntity<Account> update(@PathVariable(value = "id") UUID accountId, @RequestBody Account updatedAccount) throws ResourceNotFoundException, WrongBodyException{
 
         // security: only update if account exists
         accountService.findById(accountId).orElseThrow(() -> new ResourceNotFoundException("Account not found"));
@@ -69,7 +69,7 @@ public class AccountController {
 
 
     @DeleteMapping("/accounts/{id}")
-    public String deleteAccount(@PathVariable(value = "id") UUID accountId) throws ResourceNotFoundException{
+    public String delete(@PathVariable(value = "id") UUID accountId) throws ResourceNotFoundException{
 
         Account accountToDelete = accountService.findById(accountId).orElseThrow(() -> new ResourceNotFoundException("Account not found"));
 

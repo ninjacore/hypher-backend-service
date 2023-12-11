@@ -36,6 +36,9 @@ public class FeaturedContent {
     @Column(name = "category")
     String category;
 
+    // default constructor (hibernate.InstantiationException)
+    public FeaturedContent(){}
+
     public FeaturedContent(UUID featuredContentId, UUID contentBoxId, String title, String description, String url,
             Integer position, String category) {
         this.featuredContentId = featuredContentId;

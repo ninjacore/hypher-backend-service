@@ -30,6 +30,9 @@ public class LinkCollection {
     @Column(name = "text")
     String text;
 
+    // default constructor (hibernate.InstantiationException)
+    public LinkCollection(){}
+
     public LinkCollection(UUID linkCollectionId, UUID contentBoxId, Integer position, String url, String text) {
         this.linkCollectionId = linkCollectionId;
         this.contentBoxId = contentBoxId;

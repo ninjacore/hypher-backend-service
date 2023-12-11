@@ -27,6 +27,9 @@ public class ContentBox {
     @Column(name = "type_id")
     UUID typeId;
 
+    // default constructor (hibernate.InstantiationException)
+    public ContentBox(){}
+
     public ContentBox(UUID contentBoxId, UUID profileId, String contentBoxPosition, UUID typeId) {
         this.contentBoxId = contentBoxId;
         this.profileId = profileId;

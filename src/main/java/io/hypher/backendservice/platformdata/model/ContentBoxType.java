@@ -27,6 +27,9 @@ public class ContentBoxType {
     @Column(name = "color_coding")
     String colorCoding;
 
+    // default constructor (hibernate.InstantiationException)
+    public ContentBoxType(){}
+
     public ContentBoxType(UUID contentBoxTypeId, String shortTitle, String guidingDescription, String colorCoding) {
         this.contentBoxTypeId = contentBoxTypeId;
         this.shortTitle = shortTitle;

@@ -29,9 +29,12 @@ public class Profile {
     String userBio;
 
     @Column(name = "tags")
-    List<String> tags;
+    String tags;
 
-    public Profile(UUID profileId, String displayedName, String profileHandle, String userBio, List<String> tags) {
+    // default constructor (hibernate.InstantiationException)
+    public Profile(){}
+
+    public Profile(UUID profileId, String displayedName, String profileHandle, String userBio, String tags) {
         this.profileId = profileId;
         this.displayedName = displayedName;
         this.profileHandle = profileHandle;
@@ -71,15 +74,13 @@ public class Profile {
         this.userBio = userBio;
     }
 
-    public List<String> getTags() {
+    public String getTags() {
         return tags;
     }
 
-    public void setTags(List<String> tags) {
+    public void setTags(String tags) {
         this.tags = tags;
-    }
-
-    
+    }    
 
 
 }

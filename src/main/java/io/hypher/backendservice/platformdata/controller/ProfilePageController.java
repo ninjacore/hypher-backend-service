@@ -20,21 +20,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 @RequestMapping("/api/v1")
 public class ProfilePageController {
 
-    @Autowired
-    ProfileService profileService;
+    // @Autowired
+    // ProfileService profileService;
 
     // @GetMapping("/profilePage/{handle}")
     // public ProfilePage getMethodName(@RequestParam String param) {
-        
+
     //     return null;
     // }
 
-    @GetMapping("/profile/{id}")
-    public Optional<Profile> testGettingData(@PathVariable(value = "id") UUID profileId) {
-        
-        return profileService.findById(profileId);
-
-    }
-    
-    
 }

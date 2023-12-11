@@ -2,6 +2,7 @@ package io.hypher.backendservice.platformdata.utillity.error;
 
 import java.util.Date;
 
+import org.postgresql.util.PSQLException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -35,6 +36,13 @@ public class ResponseEntityExceptionMessageHandler extends ResponseEntityExcepti
         ErrorDetails errorDetails = new ErrorDetails(new Date(), e.getMessage(), req.getDescription(false));
         
         return new ResponseEntity<>(errorDetails, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(PSQLException.class)
+    public ResponseEntity<?> noResults(PSQLException e, WebRequest req){
+        ErrorDetails errorDetails = new ErrorDetails(new Date(), e.getMessage(), req.getDescription(false));
+        
+        return new ResponseEntity<>(errorDetails, HttpStatus.NOT_FOUND);
     }
     
 }
