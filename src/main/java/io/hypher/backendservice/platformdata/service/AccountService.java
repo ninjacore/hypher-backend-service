@@ -16,8 +16,9 @@ public class AccountService {
     @Autowired
     private AccountRepository accountRepository;
 
-    public Account save(Account account){
-        return accountRepository.save(account);
+    public Optional<Account> save(Account account){
+        Account savedAccount = accountRepository.save(account);
+        return Optional.of(savedAccount);
     }
 
     public Optional<Account> findById(UUID accountId){
