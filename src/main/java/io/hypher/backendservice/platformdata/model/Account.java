@@ -21,6 +21,9 @@ public class Account {
     @Column(name = "primary_email")
     String primaryEmail;
 
+    // default constructor (hibernate.InstantiationException)
+    public Account(){};
+
     public Account(UUID accountId, String primaryEmail) {
         this.accountId = accountId;
         this.primaryEmail = primaryEmail;
