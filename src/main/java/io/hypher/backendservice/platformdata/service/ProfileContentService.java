@@ -3,6 +3,7 @@ package io.hypher.backendservice.platformdata.service;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.Collection;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,6 +28,10 @@ public class ProfileContentService {
 
     public List<ProfileContent> findAll(){
         return profileContentRepository.findAll();
+    }
+
+    public Collection<ProfileContent> findByProfileId(UUID profileId){
+        return profileContentRepository.findByProfileId(profileId);
     }
 
     // public String delete(ProfileContent profileContent){

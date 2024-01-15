@@ -12,6 +12,7 @@ import io.hypher.backendservice.platformdata.utillity.error.WrongBodyException;
 
 import java.util.Optional;
 import java.util.UUID;
+import java.util.Collection;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -34,6 +35,13 @@ public class ProfileContentController {
     // public Optional<ProfileContent> create(@RequestBody ProfileContent profileContent) {
     //     return profileContentService.save(profileContent);        
     // }
+
+    // TODO: query the Profile table
+    // TODO: build the DTO from there
+    @GetMapping("/profilePage/{id}")
+    public Collection<ProfileContent> getProfilePage(@PathVariable(value = "id") UUID profileId) {
+        return profileContentService.findByProfileId(profileId);
+    }
     
     
     @GetMapping("/profileContents")
