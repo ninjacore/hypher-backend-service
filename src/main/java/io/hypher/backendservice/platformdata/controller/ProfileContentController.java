@@ -6,6 +6,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import io.hypher.backendservice.platformdata.model.ProfileContent;
 import io.hypher.backendservice.platformdata.service.ProfileContentService;
+import io.hypher.backendservice.platformdata.service.ProfileService;
+import io.hypher.backendservice.platformdata.model.Profile;
 
 import io.hypher.backendservice.platformdata.utillity.error.ResourceNotFoundException;
 import io.hypher.backendservice.platformdata.utillity.error.WrongBodyException;
@@ -31,17 +33,28 @@ public class ProfileContentController {
     @Autowired
     ProfileContentService profileContentService;
 
+    @Autowired
+    ProfileService profileService;
+
     // @PostMapping("/profileContents")
     // public Optional<ProfileContent> create(@RequestBody ProfileContent profileContent) {
     //     return profileContentService.save(profileContent);        
     // }
 
-    // TODO: query the Profile table
     // TODO: build the DTO from there
-    @GetMapping("/profilePage/{id}")
-    public Collection<ProfileContent> getProfilePage(@PathVariable(value = "id") UUID profileId) {
+    @GetMapping("/profilePage/{handle}")
+    public Collection<ProfileContent> getProfilePage(@PathVariable(value = "handle") String profileHandle) throws ResourceNotFoundException{
+
+        // once we get the data we can work with it
+        Collection<Profile> profiles = profileService.findByHandle(profileHandle).orElseThrow(() -> new ResourceNotFoundException("Profile not found"));
+
+        Profile profile = profiles.iterator().next();
+
+        UUID profileId = profile.getProfileId();
+        
         return profileContentService.findByProfileId(profileId);
     }
+
     
     
     @GetMapping("/profileContents")

@@ -3,6 +3,7 @@ package io.hypher.backendservice.platformdata.service;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.Collection;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,10 @@ public class ProfileService {
 
     public Optional<Profile> findById(UUID profileId){
         return profileRepository.findById(profileId);
+    }
+
+    public Optional<Collection<Profile>> findByHandle(String profileHandle){
+        return Optional.of(profileRepository.findByProfileHandle(profileHandle));
     }
 
     public List<Profile> findAll(){

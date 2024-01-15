@@ -11,6 +11,7 @@ import io.hypher.backendservice.platformdata.utillity.error.WrongBodyException;
 
 import java.util.Optional;
 import java.util.UUID;
+import java.util.Collection;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -47,6 +48,12 @@ public class ProfileController {
     public Optional<Profile> getById(@PathVariable(value = "id") UUID profileId) {
         
         return profileService.findById(profileId);
+    }
+
+    @GetMapping("/profiles/handle/{handle}")
+    public Optional<Collection<Profile>> getByHandle(@PathVariable(value = "handle") String profileHandle) {
+        
+        return profileService.findByHandle(profileHandle);
     }
 
 
