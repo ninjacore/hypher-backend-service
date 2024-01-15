@@ -2,7 +2,7 @@ package io.hypher.backendservice.platformdata.controller;
 
 import org.springframework.web.bind.annotation.RestController;
 
-import io.hypher.backendservice.platformdata.dto.ProfilePage;
+import io.hypher.backendservice.platformdata.dto.GildedProfilePage;
 import io.hypher.backendservice.platformdata.model.Profile;
 import io.hypher.backendservice.platformdata.service.ProfileService;
 

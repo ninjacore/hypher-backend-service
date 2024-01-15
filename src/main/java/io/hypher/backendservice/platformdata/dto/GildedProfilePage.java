@@ -1,5 +1,5 @@
 package io.hypher.backendservice.platformdata.dto;
 
-public class ProfilePage {
+public class GildedProfilePage {
     
 }
