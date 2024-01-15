@@ -1,3 +1,6 @@
+# introduction
+echo "May fail to connect to db if VPN on!"
+
 # load ENVs
 . .local-env
 
