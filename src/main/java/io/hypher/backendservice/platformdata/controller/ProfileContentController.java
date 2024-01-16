@@ -32,10 +32,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class ProfileContentController {
     
     @Autowired
-    ProfileContentService profileContentService;
+    private ProfileContentService profileContentService;
 
     @Autowired
-    ProfileService profileService;
+    private ProfileService profileService;
 
     // TODO: build the DTO from there
     @GetMapping("/profilePage/{handle}")

@@ -30,7 +30,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 public class FeaturedContentController {
 
     @Autowired
-    FeaturedContentService featuredContentService;
+    private FeaturedContentService featuredContentService;
 
     @PostMapping("/featuredContents")
     public Optional<FeaturedContent> create(@RequestBody FeaturedContent featuredContent) {

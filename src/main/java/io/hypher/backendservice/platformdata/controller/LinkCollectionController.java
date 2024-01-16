@@ -30,7 +30,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 public class LinkCollectionController {
 
     @Autowired
-    LinkCollectionService linkCollectionService;
+    private LinkCollectionService linkCollectionService;
 
     @PostMapping("/linkCollections")
     public Optional<LinkCollection> create(@RequestBody LinkCollection linkCollection) {

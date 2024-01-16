@@ -30,7 +30,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 public class ProfileOwnershipController {
 
     @Autowired
-    ProfileOwnershipService profileOwnershipService;
+    private ProfileOwnershipService profileOwnershipService;
 
     @PostMapping("/profileOwnerships")
     public Optional<ProfileOwnership> create(@RequestBody ProfileOwnership profileOwnership) {

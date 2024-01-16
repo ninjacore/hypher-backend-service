@@ -30,7 +30,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 public class ContentBoxTypeController {
 
     @Autowired
-    ContentBoxTypeService contentBoxTypeService;
+    private ContentBoxTypeService contentBoxTypeService;
 
     @PostMapping("/contentBoxTypes")
     public Optional<ContentBoxType> create(@RequestBody ContentBoxType contentBoxType) {

@@ -30,7 +30,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 public class ContentBoxController {
 
     @Autowired
-    ContentBoxService contentBoxService;
+    private ContentBoxService contentBoxService;
 
     @PostMapping("/contentBoxes")
     public Optional<ContentBox> create(@RequestBody ContentBox contentBox) {

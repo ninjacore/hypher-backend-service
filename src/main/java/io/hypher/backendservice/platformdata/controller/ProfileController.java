@@ -31,7 +31,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 public class ProfileController {
 
     @Autowired
-    ProfileService profileService;
+    private ProfileService profileService;
 
     @PostMapping("/profiles")
     public Optional<Profile> create(@RequestBody Profile profile) {

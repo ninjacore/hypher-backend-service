@@ -30,7 +30,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 public class AccountController {
 
     @Autowired
-    AccountService accountService;
+    private AccountService accountService;
 
     @PostMapping("/accounts")
     public Optional<Account> create(@RequestBody Account account) {
