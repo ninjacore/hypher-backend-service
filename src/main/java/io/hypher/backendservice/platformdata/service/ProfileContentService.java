@@ -3,7 +3,6 @@ package io.hypher.backendservice.platformdata.service;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.Collection;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,10 +16,6 @@ public class ProfileContentService {
     @Autowired
     private ProfileContentRepository profileContentRepository;
 
-    // public Optional<ProfileContent> save(ProfileContent profileContent){
-    //     ProfileContent savedProfileContent = profileContentRepository.save(profileContent);
-    //     return Optional.of(savedProfileContent);
-    // }
 
     public Optional<ProfileContent> findById(UUID profileContentId){
         return profileContentRepository.findById(profileContentId);
@@ -33,19 +28,5 @@ public class ProfileContentService {
     public Optional<List<ProfileContent>> findAllByProfileId(UUID profileId){
         return Optional.of(profileContentRepository.findAllByProfileId(profileId));
     }
-
-    // public String delete(ProfileContent profileContent){
-
-    //     boolean profileContentDeleted;
-
-    //     try {
-    //         profileContentRepository.delete(profileContent);
-    //         profileContentDeleted = true;
-    //     } catch (Exception e) {
-    //         profileContentDeleted = false;
-    //     }
-
-    //     return "ProfileContent deleted? -> " + profileContentDeleted;
-    // }
     
 }

@@ -17,22 +17,15 @@ import io.hypher.backendservice.platformdata.dto.MainContentBox;
 import io.hypher.backendservice.platformdata.model.Profile;
 
 import io.hypher.backendservice.platformdata.utillity.error.ResourceNotFoundException;
-import io.hypher.backendservice.platformdata.utillity.error.WrongBodyException;
 
 import java.util.Optional;
 import java.util.UUID;
 import java.util.Collection;
 
-// import org.postgresql.shaded.com.ongres.scram.common.bouncycastle.pbkdf2.Arrays;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.PutMapping;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -43,11 +36,6 @@ public class ProfileContentController {
 
     @Autowired
     ProfileService profileService;
-
-    // @PostMapping("/profileContents")
-    // public Optional<ProfileContent> create(@RequestBody ProfileContent profileContent) {
-    //     return profileContentService.save(profileContent);        
-    // }
 
     // TODO: build the DTO from there
     @GetMapping("/profilePage/{handle}")
@@ -61,10 +49,6 @@ public class ProfileContentController {
         UUID profileId = profile.getProfileId();
 
         List<ProfileContent> profileContent = profileContentService.findAllByProfileId(profileId).orElseThrow(() -> new ResourceNotFoundException("ProfileContent not found"));
-
-        // if (profileContent != null) {
-        //     return profileContent;
-        // }
 
         /**
          * provide main content
@@ -81,15 +65,14 @@ public class ProfileContentController {
          * provide extra content
          */
         LinkCollectionContentBox linkCollectionContentBox = new LinkCollectionContentBox("",1);
-        FeaturedContentBox featuredContentBox = new FeaturedContentBox("",2,"");
+
+        FeaturedContentBox featuredContentBox = new FeaturedContentBox("",2,"");        
 
         for (ProfileContent content : profileContent) {
 
             if (content.getLinkCollectionId() != null && !content.getLinkCollectionId().toString().equals("") && !content.getLinkCollectionId().toString().equals("NULL")) {
 
-                // TODO: don't repeat these three every time... use contentboxid to get it once
-                linkCollectionContentBox.setPosition(content.getContentBoxPosition());
-                // TODO: turn into actual type
+                // happens on-repeat but information is not known before
                 linkCollectionContentBox.setContentType(content.getContentBoxTypeShortTitle());
 
                 // link collection types
@@ -105,11 +88,9 @@ public class ProfileContentController {
 
             if (content.getFeaturedContentId() != null && !content.getFeaturedContentId().toString().equals("") && !content.getFeaturedContentId().toString().equals("NULL")) {
 
-                // TODO: don't repeat these three every time... use contentboxid to get it once
+                // happens on-repeat but information is not known before
                 featuredContentBox.setShortTitle(content.getContentBoxShortTitle());
-                featuredContentBox.setPosition(content.getContentBoxPosition());
-                // TODO: turn into actual type
-                featuredContentBox.setContentType(content.getContentBoxTypeShortTitle());
+                featuredContentBox.setContentType(content.getContentBoxTypeShortTitle());        
 
                 // featured types
                 Integer position = content.getPositionInFeaturedContent();
@@ -128,11 +109,8 @@ public class ProfileContentController {
         }
 
         // combine
-        GildedProfilePage gildedProfilePage = new GildedProfilePage(mainContentBox, linkCollectionContentBox, featuredContentBox);
+        return new GildedProfilePage(mainContentBox, linkCollectionContentBox, featuredContentBox);
         
-        // TODO: return gildedProfilePage
-        // return profileContent;
-        return gildedProfilePage;
     }
     
     @GetMapping("/profileContents")

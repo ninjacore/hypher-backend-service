@@ -1,7 +1,6 @@
 package io.hypher.backendservice.platformdata.dto;
 
 import java.util.Map;
-import java.util.Objects;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,7 +19,6 @@ public class FeaturedContentBox {
         try {
             this.contentBox.add(content);            
         } catch (Exception e) {
-            // TODO: handle exception
             throw new NullPointerException("contentBox is null");
         }
     }
@@ -61,7 +59,7 @@ public class FeaturedContentBox {
         this.contentType = contentType;
         this.position = position;
         this.shortTitle = shortTitle;
-        // contentBox can be added after instantiation!
+        // content can be added after instantiation!
         this.contentBox = new ArrayList<>();
 
     }    

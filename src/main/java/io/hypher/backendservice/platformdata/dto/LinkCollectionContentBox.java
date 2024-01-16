@@ -19,7 +19,6 @@ public class LinkCollectionContentBox {
         try {
             this.contentBox.add(content);
         } catch (Exception e) {
-            // TODO: handle exception
             throw new NullPointerException("contentBox is null");
         }
     }
@@ -51,9 +50,8 @@ public class LinkCollectionContentBox {
     public LinkCollectionContentBox(String contentType, Integer position) {
         this.contentType = contentType;
         this.position = position;
-        // contentBox can be added after instantiation!
+        // content can be added after instantiation!
         this.contentBox = new ArrayList<>();
-
     }
 
 }
