@@ -60,7 +60,11 @@ public class ProfileContentController {
 
         UUID profileId = profile.getProfileId();
 
-        Collection<ProfileContent> profileContent = profileContentService.findByProfileId(profileId).orElseThrow(() -> new ResourceNotFoundException("ProfileContent not found"));
+        List<ProfileContent> profileContent = profileContentService.findAllByProfileId(profileId).orElseThrow(() -> new ResourceNotFoundException("ProfileContent not found"));
+
+        // if (profileContent != null) {
+        //     return profileContent;
+        // }
 
         /**
          * provide main content
@@ -91,10 +95,10 @@ public class ProfileContentController {
                 // link collection types
                 Integer position = content.getPositionInLinkCollection();
                 String url = content.getLinkCollectionUrl();
-                String text = content.getLinkCollectionAltLinkText(); 
+                String text = content.getLinkCollectionAltLinkText(); // can be null
                                 
                 if (linkCollectionContentBox.getContentBox() != null) {
-                    linkCollectionContentBox.addContent(position, url, text);                    
+                    linkCollectionContentBox.addContent(position, url, Objects.toString(text, ""));                    
                 }
 
             }

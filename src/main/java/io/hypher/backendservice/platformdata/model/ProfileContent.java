@@ -14,13 +14,17 @@ import jakarta.persistence.Table;
 @Table(name = "profile_content", schema = "public")
 public class ProfileContent {
 
+    // unique_id
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "unique_id")
+    Long uniqueId;
+
     // profile_id
     @Column(name = "profile_id")
     UUID profileId;
 
     // content_box_id
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "content_box_id")
     UUID contentBoxId;
 
@@ -90,6 +94,10 @@ public class ProfileContent {
 
     // default constructor (hibernate.InstantiationException)
     public ProfileContent(){}
+
+    public Long getUniqueId() {
+        return uniqueId;
+    }
 
     public UUID getProfileId() {
         return profileId;
@@ -164,6 +172,5 @@ public class ProfileContent {
     }
 
     
-
         
 }
