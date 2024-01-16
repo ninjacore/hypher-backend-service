@@ -30,8 +30,8 @@ public class ProfileContentService {
         return profileContentRepository.findAll();
     }
 
-    public Collection<ProfileContent> findByProfileId(UUID profileId){
-        return profileContentRepository.findByProfileId(profileId);
+    public Optional<Collection<ProfileContent>> findByProfileId(UUID profileId){
+        return Optional.of(profileContentRepository.findByProfileId(profileId));
     }
 
     // public String delete(ProfileContent profileContent){

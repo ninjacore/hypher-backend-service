@@ -24,6 +24,10 @@ public class ProfileContent {
     @Column(name = "content_box_id")
     UUID contentBoxId;
 
+    // content_box_short_title
+    @Column(name = "content_box_short_title")
+    String contentBoxShortTitle;
+
     // content_box_position
     @Column(name = "content_box_position")
     Integer contentBoxPosition;
@@ -93,6 +97,10 @@ public class ProfileContent {
 
     public UUID getContentBoxId() {
         return contentBoxId;
+    }
+
+    public String getContentBoxShortTitle() {
+        return contentBoxShortTitle;
     }
 
     public Integer getContentBoxPosition() {
