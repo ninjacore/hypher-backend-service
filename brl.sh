@@ -1,6 +1,6 @@
 # introduction
 INFOC='\033[1;36m'
-echo "${INFOC}Note: May fail to connect to db if VPN on!"
+echo "${INFOC}Note: May fail to connect to database if VPN is on!"
 
 # load ENVs
 . .local-env
