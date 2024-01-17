@@ -1,47 +1,55 @@
 package io.hypher.backendservice.platformdata.dto;
 
 import java.util.List;
+import java.util.ArrayList;
 
 public class MainContentBox {
 
-    // main types
-    String bio; 
-    String name;
-    List<String> tags;
-
     String contentType;
     Integer position;
+    List<MainContent> contentBox;
 
-    public String getBio() {
-        return bio;
+    public void addContent(MainContent content) {
+        if (this.contentBox == null) {
+            throw new NullPointerException("contentBox is null");
+        }
+
+        try {
+            this.contentBox.add(content);
+        } catch (Exception e) {
+            throw new NullPointerException("content is null");
+        }
     }
 
-    public void setBio(String bio) {
-        this.bio = bio;
+    public String getContentType() {
+        return contentType;
     }
-    
-    public String getName() {
-        return name;
+
+    public void setContentType(String contentType) {
+        this.contentType = contentType;
     }
-    
-    public void setName(String name) {
-        this.name = name;
+
+    public Integer getPosition() {
+        return position;
     }
-    
-    public List<String> getTags() {
-        return tags;
+
+    public void setPosition(Integer position) {
+        this.position = position;
     }
-    
-    public void setTags(List<String> tags) {
-        this.tags = tags;
+
+    public List<MainContent> getContentBox() {
+        return contentBox;
     }
-    
-    public MainContentBox(String bio, String name, List<String> tags) {
+
+    public void setContentBox(List<MainContent> contentBox) {
+        this.contentBox = contentBox;
+    }
+
+    public MainContentBox(){
         this.position = 0; // is always first
         this.contentType = "main";
-        this.bio = bio;
-        this.name = name;
-        this.tags = tags;
+        // content can be added after instantiation!
+        this.contentBox = new ArrayList<>();
     }
     
 }

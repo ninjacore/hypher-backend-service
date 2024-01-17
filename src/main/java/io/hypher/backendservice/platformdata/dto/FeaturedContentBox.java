@@ -11,8 +11,8 @@ public class FeaturedContentBox {
     String shortTitle;
     List<Map<String, String>> contentBox;
 
-    public void addContent(Integer position, String url, String description, String category) {
-        Map<String, String> content = Map.of("position", position.toString(), "url", url, "description", description, "category", category);
+    public void addContent(Integer position, String url, String title, String description, String category) {
+        Map<String, String> content = Map.of("position", position.toString(), "url", url, "title", title, "description", description, "category", category);
         if (this.contentBox == null) {
             throw new NullPointerException("contentBox is null");
         }
