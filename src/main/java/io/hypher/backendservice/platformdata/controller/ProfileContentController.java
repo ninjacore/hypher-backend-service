@@ -23,10 +23,14 @@ import java.util.UUID;
 import java.util.Collection;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+
+// @CrossOrigin("http://localhost:3000")
+@CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequestMapping("/api/v1")
 public class ProfileContentController {
@@ -37,6 +41,7 @@ public class ProfileContentController {
     @Autowired
     private ProfileService profileService;
 
+    // @CrossOrigin("http://localhost:3000")
     @GetMapping("/profilePage/{handle}")
     public List<Object> getProfilePage(@PathVariable(value = "handle") String profileHandle) throws ResourceNotFoundException{
 
