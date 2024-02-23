@@ -1,4 +1,4 @@
-package io.hypher.backendservice.platformdata.model;
+package io.hypher.backendservice.platformdata.dto;
 
 public class FeaturedContentUpdate {
 

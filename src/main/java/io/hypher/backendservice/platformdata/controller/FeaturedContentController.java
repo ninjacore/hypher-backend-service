@@ -4,8 +4,8 @@ import java.util.List;
 
 import org.springframework.web.bind.annotation.RestController;
 
+import io.hypher.backendservice.platformdata.dto.FeaturedContentUpdate;
 import io.hypher.backendservice.platformdata.model.FeaturedContent;
-import io.hypher.backendservice.platformdata.model.FeaturedContentUpdate;
 import io.hypher.backendservice.platformdata.model.FeaturedContentView;
 import io.hypher.backendservice.platformdata.model.Profile;
 
@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -58,8 +59,8 @@ public class FeaturedContentController {
         return featuredContentService.findById(featuredContentId);
     }
 
-    @PutMapping("featuredContents/{handle}/{featuredContentBoxPosition}")
-    public ResponseEntity<FeaturedContent> updateFeaturedContent(@PathVariable (value = "handle") String handle, @PathVariable (value = "featuredContentBoxPosition") String position, @RequestBody FeaturedContentUpdate entity) throws ResourceNotFoundException {
+    @PutMapping("featuredContents/{handle}/update")
+    public ResponseEntity<FeaturedContent> updateFeaturedContent(@PathVariable (value = "handle") String handle, @RequestParam String position, @RequestBody FeaturedContentUpdate entity) throws ResourceNotFoundException {
 
         // find user by handle
         Collection<Profile> profiles = profileService.findByHandle(handle).orElseThrow(() -> new ResourceNotFoundException("Profile not found"));
@@ -70,16 +71,17 @@ public class FeaturedContentController {
         List<FeaturedContentView> featuredContents = featuredContentService.findByProfileId(profileId).orElseThrow(() -> new ResourceNotFoundException("FeaturedContent not found"));  
 
         // get the one with the right position
-        FeaturedContentView desiredFeaturedContent = featuredContents.stream().filter(featuredContent -> featuredContent.getPosition().equals(position)).findFirst().orElseThrow(() -> new ResourceNotFoundException("FeaturedContent not found"));
+        FeaturedContentView desiredFeaturedContent = featuredContents.stream()
+            .filter(featuredContent -> featuredContent.getPosition() == Integer.parseInt(position))
+            .findFirst()
+            .orElseThrow(() -> new ResourceNotFoundException("FeaturedContent not found"));
 
         // update the entity
         FeaturedContent updatedFeaturedContent = new FeaturedContent();
         updatedFeaturedContent.setFeaturedContentId(desiredFeaturedContent.getFeaturedContentId());
-        // updatedFeaturedContent.setTitle(desiredFeaturedContent.getTitle());
-        // updatedFeaturedContent.setDescription(desiredFeaturedContent.getDescription());
-        // updatedFeaturedContent.setUrl(desiredFeaturedContent.getUrl());
+        updatedFeaturedContent.setContentBoxId(desiredFeaturedContent.getContentBoxId());
         updatedFeaturedContent.setPosition(desiredFeaturedContent.getPosition());
-        updatedFeaturedContent.setCategory(desiredFeaturedContent.getCategory());
+        updatedFeaturedContent.setCategory("featuredMusic");
 
         updatedFeaturedContent.setTitle(entity.getTitle());
         updatedFeaturedContent.setDescription(entity.getDescription());
