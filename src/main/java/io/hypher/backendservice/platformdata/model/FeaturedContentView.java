@@ -22,25 +22,25 @@ public class FeaturedContentView {
     @Column(name = "profile_id")
     UUID profileId;
     
-    @Column(name = "id")
+    @Column(name = "featured_content_id")
     UUID featuredContentId;
 
     @Column(name = "content_box_id")
     UUID contentBoxId;
 
-    @Column(name = "title")
+    @Column(name = "featured_content_title")
     String title;
 
-    @Column(name = "description")
+    @Column(name = "featured_content_description")
     String description;
 
-    @Column(name = "url")
+    @Column(name = "featured_content_url")
     String url;
 
-    @Column(name = "position")
+    @Column(name = "position_in_featured_content")
     Integer position;
 
-    @Column(name = "category")
+    @Column(name = "featured_content_category")
     String category;
 
     // default constructor (hibernate.InstantiationException)
