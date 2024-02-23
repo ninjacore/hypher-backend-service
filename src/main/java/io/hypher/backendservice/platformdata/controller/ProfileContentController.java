@@ -23,6 +23,7 @@ import java.util.UUID;
 import java.util.Collection;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -43,7 +44,7 @@ public class ProfileContentController {
 
     // @CrossOrigin("http://localhost:3000")
     @GetMapping("/profilePage/{handle}")
-    public List<Object> getProfilePage(@PathVariable(value = "handle") String profileHandle) throws ResourceNotFoundException{
+    public ResponseEntity<List<Object>> getProfilePage(@PathVariable(value = "handle") String profileHandle) throws ResourceNotFoundException{
 
         // once we get the data we can work with it
         Collection<Profile> profiles = profileService.findByHandle(profileHandle).orElseThrow(() -> new ResourceNotFoundException("Profile not found"));
@@ -116,8 +117,9 @@ public class ProfileContentController {
         }
         
         // combine
-        return List.of(mainContentBox, linkCollectionContentBox, featuredContentBox);
-        
+        // return List.of(mainContentBox, linkCollectionContentBox, featuredContentBox);
+
+        return ResponseEntity.ok().body(List.of(mainContentBox, linkCollectionContentBox, featuredContentBox));
     }
     
     @GetMapping("/profileContents")
