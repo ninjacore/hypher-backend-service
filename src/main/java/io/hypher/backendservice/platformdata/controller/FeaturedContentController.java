@@ -5,8 +5,10 @@ import java.util.List;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.hypher.backendservice.platformdata.model.FeaturedContent;
+import io.hypher.backendservice.platformdata.model.FeaturedContentUpdate;
 import io.hypher.backendservice.platformdata.model.FeaturedContentView;
 import io.hypher.backendservice.platformdata.model.Profile;
+
 import io.hypher.backendservice.platformdata.service.FeaturedContentService;
 import io.hypher.backendservice.platformdata.service.ProfileService;
 import io.hypher.backendservice.platformdata.utillity.error.ResourceNotFoundException;
@@ -15,7 +17,6 @@ import io.hypher.backendservice.platformdata.utillity.error.WrongBodyException;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.Collection;
-
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -58,7 +59,7 @@ public class FeaturedContentController {
     }
 
     @PutMapping("featuredContents/{handle}/{featuredContentBoxPosition}")
-    public ResponseEntity<FeaturedContent> updateFeaturedContent(@PathVariable (value = "handle") String handle, @PathVariable (value = "featuredContentBoxPosition") String position, @RequestBody String entity) throws ResourceNotFoundException {
+    public ResponseEntity<FeaturedContent> updateFeaturedContent(@PathVariable (value = "handle") String handle, @PathVariable (value = "featuredContentBoxPosition") String position, @RequestBody FeaturedContentUpdate entity) throws ResourceNotFoundException {
 
         // find user by handle
         Collection<Profile> profiles = profileService.findByHandle(handle).orElseThrow(() -> new ResourceNotFoundException("Profile not found"));
@@ -74,11 +75,15 @@ public class FeaturedContentController {
         // update the entity
         FeaturedContent updatedFeaturedContent = new FeaturedContent();
         updatedFeaturedContent.setFeaturedContentId(desiredFeaturedContent.getFeaturedContentId());
-        updatedFeaturedContent.setTitle(desiredFeaturedContent.getTitle());
-        updatedFeaturedContent.setDescription(desiredFeaturedContent.getDescription());
-        updatedFeaturedContent.setUrl(desiredFeaturedContent.getUrl());
+        // updatedFeaturedContent.setTitle(desiredFeaturedContent.getTitle());
+        // updatedFeaturedContent.setDescription(desiredFeaturedContent.getDescription());
+        // updatedFeaturedContent.setUrl(desiredFeaturedContent.getUrl());
         updatedFeaturedContent.setPosition(desiredFeaturedContent.getPosition());
         updatedFeaturedContent.setCategory(desiredFeaturedContent.getCategory());
+
+        updatedFeaturedContent.setTitle(entity.getTitle());
+        updatedFeaturedContent.setDescription(entity.getDescription());
+        updatedFeaturedContent.setUrl(entity.getUrl());
 
         // save the updated entity
         featuredContentService.save(updatedFeaturedContent);
