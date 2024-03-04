@@ -4,13 +4,20 @@ import java.util.List;
 
 import org.springframework.web.bind.annotation.RestController;
 
+import io.hypher.backendservice.platformdata.dto.LinkCollectionUpdate;
 import io.hypher.backendservice.platformdata.model.LinkCollection;
+import io.hypher.backendservice.platformdata.model.LinkCollectionView;
+import io.hypher.backendservice.platformdata.model.Profile;
+
 import io.hypher.backendservice.platformdata.service.LinkCollectionService;
+import io.hypher.backendservice.platformdata.service.ProfileService;
+
 import io.hypher.backendservice.platformdata.utillity.error.ResourceNotFoundException;
 import io.hypher.backendservice.platformdata.utillity.error.WrongBodyException;
 
 import java.util.Optional;
 import java.util.UUID;
+import java.util.Collection;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +26,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -32,6 +40,9 @@ public class LinkCollectionController {
 
     @Autowired
     private LinkCollectionService linkCollectionService;
+
+    @Autowired
+    private ProfileService profileService;    
 
     @PostMapping("/linkCollections")
     public Optional<LinkCollection> create(@RequestBody LinkCollection linkCollection) {
@@ -48,6 +59,37 @@ public class LinkCollectionController {
     public Optional<LinkCollection> getById(@PathVariable(value = "id") UUID linkCollectionId) {
         
         return linkCollectionService.findById(linkCollectionId);
+    }
+
+    @PutMapping("/linkCollections/{handle}/update")
+    public ResponseEntity<LinkCollection> updateByHandle(@PathVariable (value = "handle") String handle, @RequestParam String position, @RequestBody LinkCollectionUpdate entity) throws ResourceNotFoundException, WrongBodyException{
+
+        // find user by handle
+        Collection<Profile> profiles = profileService.findByHandle(handle).orElseThrow(() -> new ResourceNotFoundException("Profile not found"));
+        Profile profile = profiles.iterator().next();
+        UUID profileId = profile.getProfileId();
+
+        // find linkCollection by profileId
+        List<LinkCollectionView> linkCollections = linkCollectionService.findByProfileId(profileId).orElseThrow(() -> new ResourceNotFoundException("LinkCollection not found"));
+
+        // get the one with the right position
+        LinkCollectionView desiredLinkCollection = linkCollections.stream()
+            .filter(lc -> lc.getPosition() == Integer.parseInt(position))
+            .findFirst().orElseThrow(() -> new ResourceNotFoundException("LinkCollection not found"));
+
+        // update the entity
+        LinkCollection updatedLinkCollection = new LinkCollection();
+        updatedLinkCollection.setLinkCollectionId(desiredLinkCollection.getLinkCollectionId());
+        updatedLinkCollection.setContentBoxId(desiredLinkCollection.getContentBoxId());
+        updatedLinkCollection.setPosition(desiredLinkCollection.getPosition());
+
+        updatedLinkCollection.setUrl(entity.getUrl());
+        updatedLinkCollection.setText(entity.getText());
+
+        // save the updated entity
+        linkCollectionService.save(updatedLinkCollection);
+
+        return ResponseEntity.ok(updatedLinkCollection); 
     }
 
 
