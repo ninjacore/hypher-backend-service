@@ -14,7 +14,10 @@ import java.util.UUID;
 import java.util.Collection;
 
 import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
+
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,7 +28,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 
 
 
-
+@CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequestMapping("/api/v1")
 public class ProfileController {
@@ -54,6 +57,18 @@ public class ProfileController {
     public Optional<Collection<Profile>> getByHandle(@PathVariable(value = "handle") String profileHandle) {
         
         return profileService.findByHandle(profileHandle);
+    }
+
+    // special endpoint to get only tags for a profile
+    @GetMapping("/profiles/{handle}/tags")
+    public Optional<String> getTagsByHandle(@PathVariable(value = "handle") String profileHandle) throws ResourceNotFoundException {
+        
+        // find user by handle
+        Collection<Profile> profiles = profileService.findByHandle(profileHandle).orElseThrow(() -> new ResourceNotFoundException("Profile not found"));
+
+        Profile profile = profiles.iterator().next();
+
+        return Optional.of(profile.getTags());
     }
 
 
