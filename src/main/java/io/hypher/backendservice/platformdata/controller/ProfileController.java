@@ -101,7 +101,16 @@ public class ProfileController {
 
         // security: only save if body and path variable are the same
         if (profile.getProfileHandle().equals(profileHandle)) {
-            profile.setTags(updatedTags.getTags());
+            
+            // convert updatedTags from client to string
+            String tags = "";
+            for (String tag : updatedTags.getTags()) {
+                tags += tag + ", ";
+            }
+            // remove trailing ", "
+            tags = tags.substring(0, tags.length() - 2);
+
+            profile.setTags(tags);
             Profile updatedProfileFromDatabase = profileService.save(profile)
                 .orElseThrow(() -> new ResourceNotFoundException("Profile not found"));
             return ResponseEntity.ok(updatedProfileFromDatabase.getTags());
