@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.web.bind.annotation.RestController;
 
+import io.hypher.backendservice.platformdata.dto.TagsUpdate;
 import io.hypher.backendservice.platformdata.model.Profile;
 import io.hypher.backendservice.platformdata.service.ProfileService;
 import io.hypher.backendservice.platformdata.utillity.error.ResourceNotFoundException;
@@ -83,6 +84,27 @@ public class ProfileController {
             Profile updatedProfileFromDatabase = profileService.save(updatedProfile)
                 .orElseThrow(() -> new ResourceNotFoundException("Profile not found"));
             return ResponseEntity.ok(updatedProfileFromDatabase);
+
+        } else {
+            throw new WrongBodyException("Your Body conflicts with the ID provided in the request.");
+        }
+    }
+
+    @PutMapping("/profiles/{handle}/tags")
+    public ResponseEntity<String> updateTags(@PathVariable(value = "handle") String profileHandle, @RequestBody TagsUpdate updatedTags) throws ResourceNotFoundException, WrongBodyException{
+
+        // find user by handle
+        Collection<Profile> profiles = profileService.findByHandle(profileHandle).orElseThrow(() -> new ResourceNotFoundException("Profile not found"));
+
+        // define target profile
+        Profile profile = profiles.iterator().next();
+
+        // security: only save if body and path variable are the same
+        if (profile.getProfileHandle().equals(profileHandle)) {
+            profile.setTags(updatedTags.getTags());
+            Profile updatedProfileFromDatabase = profileService.save(profile)
+                .orElseThrow(() -> new ResourceNotFoundException("Profile not found"));
+            return ResponseEntity.ok(updatedProfileFromDatabase.getTags());
 
         } else {
             throw new WrongBodyException("Your Body conflicts with the ID provided in the request.");
