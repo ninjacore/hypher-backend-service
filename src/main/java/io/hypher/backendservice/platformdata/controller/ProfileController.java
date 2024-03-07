@@ -14,6 +14,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.Collection;
 
+import org.antlr.v4.runtime.atn.SemanticContext.OR;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.http.ResponseEntity;
@@ -102,19 +103,25 @@ public class ProfileController {
         // security: only save if body and path variable are the same
         if (profile.getProfileHandle().equals(profileHandle)) {
             
-            // convert updatedTags from client to string
-            String tags = "";
-            for (String tag : updatedTags.getTags()) {
-                tags += tag + ", ";
+            // convert to String
+            String tags = updatedTags.getTags();
+            
+            // remove trailing ", " is there's any
+            if (tags.substring(tags.length() - 2).equals(", ")){
+                tags = tags.substring(0, tags.length() - 2);
+            }else if (tags.substring(tags.length() - 1).equals(",")){
+                tags = tags.substring(0, tags.length() - 1);
             }
-            // remove trailing ", "
-            tags = tags.substring(0, tags.length() - 2);
+            // remove any 'empty' tags (",")
+            tags = tags.replace(", ,", "");
+            tags = tags.replace(",,", "");
 
+            // save tags to profile
             profile.setTags(tags);
             Profile updatedProfileFromDatabase = profileService.save(profile)
                 .orElseThrow(() -> new ResourceNotFoundException("Profile not found"));
-            return ResponseEntity.ok(updatedProfileFromDatabase.getTags());
 
+            return ResponseEntity.ok(updatedProfileFromDatabase.getTags());
         } else {
             throw new WrongBodyException("Your Body conflicts with the ID provided in the request.");
         }
