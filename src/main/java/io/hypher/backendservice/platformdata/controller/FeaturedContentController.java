@@ -81,7 +81,7 @@ public class FeaturedContentController {
         updatedFeaturedContent.setFeaturedContentId(desiredFeaturedContent.getFeaturedContentId());
         updatedFeaturedContent.setContentBoxId(desiredFeaturedContent.getContentBoxId());
         updatedFeaturedContent.setPosition(desiredFeaturedContent.getPosition());
-        updatedFeaturedContent.setCategory("featuredMusic");
+        updatedFeaturedContent.setCategory(desiredFeaturedContent.getCategory());
 
         updatedFeaturedContent.setTitle(entity.getTitle());
         updatedFeaturedContent.setDescription(entity.getDescription());
