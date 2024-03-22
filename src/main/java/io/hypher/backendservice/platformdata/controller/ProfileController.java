@@ -5,7 +5,9 @@ import java.util.List;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.hypher.backendservice.platformdata.dto.TagsUpdate;
+import io.hypher.backendservice.platformdata.dto.BioUpdate;
 import io.hypher.backendservice.platformdata.model.Profile;
+import io.hypher.backendservice.platformdata.service.ProfileContentService;
 import io.hypher.backendservice.platformdata.service.ProfileService;
 import io.hypher.backendservice.platformdata.utillity.error.ResourceNotFoundException;
 import io.hypher.backendservice.platformdata.utillity.error.WrongBodyException;
@@ -124,6 +126,36 @@ public class ProfileController {
             return ResponseEntity.ok(updatedProfileFromDatabase.getTags());
         } else {
             throw new WrongBodyException("Your Body conflicts with the ID provided in the request.");
+        }
+    }
+
+    @PutMapping("/profiles/{handle}/about")
+    public ResponseEntity<String> updateAbout(
+        @PathVariable(value = "handle") String profileHandle, @RequestBody BioUpdate updatedAbout
+        ) throws ResourceNotFoundException, WrongBodyException{
+
+
+        // find user by handle
+        Collection<Profile> profiles = profileService.findByHandle(profileHandle).orElseThrow(() -> new ResourceNotFoundException("Profile not found"));
+
+        // define target profile
+        Profile profile = profiles.iterator().next();
+
+
+        // security: only save if body and path variable are the same
+        if (profile.getProfileHandle().equals(profileHandle)) {
+            
+            // convert to String
+            String about = updatedAbout.getBio();
+            
+            // save about to profile
+            profile.setUserBio(about);
+            Profile updatedProfileFromDatabase = profileService.save(profile)
+                .orElseThrow(() -> new ResourceNotFoundException("Profile not found"));
+
+            return ResponseEntity.ok(updatedProfileFromDatabase.getUserBio());
+        } else {
+            throw new WrongBodyException("Your Body conflicts with the profile referenced in the request.");
         }
     }
 
