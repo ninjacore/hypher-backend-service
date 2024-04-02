@@ -79,8 +79,8 @@ public class LinkCollectionController {
             List<LinkCollectionUpdate> linkCollectionDTO = new ArrayList<>();
             for (LinkCollectionView linkCollectionView : linkCollections) {
                 LinkCollectionUpdate entity = new LinkCollectionUpdate();
-                entity.setUrl(linkCollections.get(0).getUrl());
-                entity.setText(linkCollections.get(0).getText());
+                entity.setUrl(linkCollectionView.getUrl());
+                entity.setText(linkCollectionView.getText());
                 
                 linkCollectionDTO.add(entity);
             }
