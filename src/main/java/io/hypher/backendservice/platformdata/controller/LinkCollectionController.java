@@ -17,6 +17,7 @@ import io.hypher.backendservice.platformdata.utillity.error.WrongBodyException;
 
 import java.util.Optional;
 import java.util.UUID;
+import java.util.ArrayList;
 import java.util.Collection;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,6 +60,35 @@ public class LinkCollectionController {
     public Optional<LinkCollection> getById(@PathVariable(value = "id") UUID linkCollectionId) {
         
         return linkCollectionService.findById(linkCollectionId);
+    }
+
+    @GetMapping("/linkCollections/byHandle/{handle}")
+    public List<LinkCollectionUpdate> getByHandle(@PathVariable(value = "handle") String handle) throws ResourceNotFoundException{
+
+        // find user by handle
+        Collection<Profile> profiles = profileService.findByHandle(handle).orElseThrow(() -> new ResourceNotFoundException("Profile not found"));
+        Profile profile = profiles.iterator().next();
+        UUID profileId = profile.getProfileId();
+
+        // find linkCollections by profileId
+        List<LinkCollectionView> linkCollections = linkCollectionService.findByProfileId(profileId).orElseThrow(() -> new ResourceNotFoundException("LinkCollection not found"));
+
+        if(linkCollections.isEmpty()) {
+            throw new ResourceNotFoundException("LinkCollection not found");
+        } else {
+            List<LinkCollectionUpdate> linkCollectionDTO = new ArrayList<>();
+            for (LinkCollectionView linkCollectionView : linkCollections) {
+                LinkCollectionUpdate entity = new LinkCollectionUpdate();
+                entity.setUrl(linkCollections.get(0).getUrl());
+                entity.setText(linkCollections.get(0).getText());
+                
+                linkCollectionDTO.add(entity);
+            }
+            
+            return linkCollectionDTO;
+        }
+
+
     }
 
     @PutMapping("/linkCollections/{handle}/update")
