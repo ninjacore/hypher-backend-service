@@ -8,7 +8,9 @@ import io.hypher.backendservice.platformdata.dto.LinkCollectionUpdate;
 import io.hypher.backendservice.platformdata.model.LinkCollection;
 import io.hypher.backendservice.platformdata.model.LinkCollectionView;
 import io.hypher.backendservice.platformdata.model.Profile;
+import io.hypher.backendservice.platformdata.model.ContentBox;
 
+import io.hypher.backendservice.platformdata.service.ContentBoxService;
 import io.hypher.backendservice.platformdata.service.LinkCollectionService;
 import io.hypher.backendservice.platformdata.service.ProfileService;
 
@@ -17,6 +19,7 @@ import io.hypher.backendservice.platformdata.utillity.error.WrongBodyException;
 
 import java.util.Optional;
 import java.util.UUID;
+import java.util.ArrayList;
 import java.util.Collection;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,11 +47,86 @@ public class LinkCollectionController {
     @Autowired
     private ProfileService profileService;    
 
+    @Autowired
+    private ContentBoxService contentBoxService;
+
     @PostMapping("/linkCollections")
     public Optional<LinkCollection> create(@RequestBody LinkCollection linkCollection) {
         return linkCollectionService.save(linkCollection);        
     }
     
+    @PutMapping("/linkCollections/byHandle/{handle}")
+    public Optional<LinkCollection> createByHandle(
+        @PathVariable(value = "handle") String handle, 
+        @RequestParam String contentBoxPosition,
+        @RequestBody LinkCollectionUpdate linkCollectionDTO
+        ) 
+    throws ResourceNotFoundException{
+
+        // find user by handle
+        Collection<Profile> profiles = profileService.findByHandle(handle).orElseThrow(() -> new ResourceNotFoundException("Profile not found"));
+        Profile profile = profiles.iterator().next();
+        UUID profileId = profile.getProfileId();
+
+        // find contentboxId by position of linkedCollection
+        List<ContentBox> matchingContentBoxes = contentBoxService.findByPosition(contentBoxPosition).orElseThrow(() -> new ResourceNotFoundException("ContentBox not found"));
+
+        List<ContentBox> targetContentBoxes = new ArrayList<>();
+
+        matchingContentBoxes.forEach(box -> {
+            if(box.getProfileId().equals(profileId)) {
+                targetContentBoxes.add(box);
+            }
+        });
+
+        // TODO: better Exception type
+        if(targetContentBoxes.size() > 1){
+            throw new ResourceNotFoundException("More than one matching content box found");
+        }
+        
+        UUID contentBoxId = targetContentBoxes.get(0).getContentBoxId();
+
+
+        // verify the linkcollection exists and get the number of entries
+        List<LinkCollectionView> linkCollections = linkCollectionService.findByProfileId(profileId).orElseThrow(() -> new ResourceNotFoundException("LinkCollection not found"));
+        Integer numberOfEntries;
+        if(linkCollections.size() > 0) {
+            numberOfEntries = linkCollections.size();
+        }else {
+            throw new ResourceNotFoundException("LinkCollection not found");
+        }
+
+
+        // create new linkCollection entry for that content box id
+        LinkCollection linkCollection = new LinkCollection();
+        // UUID linkCollectionId = UUID.randomUUID();
+        // linkCollection.setLinkCollectionId(linkCollectionId);
+        linkCollection.setContentBoxId(contentBoxId);
+        linkCollection.setPosition(numberOfEntries);
+        linkCollection.setUrl(linkCollectionDTO.getUrl());
+        linkCollection.setText(linkCollectionDTO.getText());
+
+        // save the new linkCollection entry
+        return linkCollectionService.save(linkCollection);
+
+        //////////////////// OLD CODE ///////////////////
+
+        // set profileId
+        // linkCollection.setProfileId(profileId);
+
+        // LinkCollection linkCollection = new LinkCollection();
+        // linkCollection.setProfileId(profileId);
+        // linkCollection.setUrl(linkCollectionDTO.getUrl());
+        // linkCollection.setText(linkCollectionDTO.getText());
+        
+        // linkCollection.setPosition(linkCollectionDTO.getPosition());
+        
+        // // TODO: get contentboxId by position
+        // linkCollection.setContentBoxId(linkCollectionDTO.getContentBoxId());
+        
+
+        // return linkCollectionService.save(linkCollection);        
+    }
     
     @GetMapping("/linkCollections")
     public List<LinkCollection> getAll() {
@@ -61,8 +139,41 @@ public class LinkCollectionController {
         return linkCollectionService.findById(linkCollectionId);
     }
 
+    @GetMapping("/linkCollections/byHandle/{handle}")
+    public List<LinkCollectionUpdate> getByHandle(@PathVariable(value = "handle") String handle) throws ResourceNotFoundException{
+
+        // find user by handle
+        Collection<Profile> profiles = profileService.findByHandle(handle).orElseThrow(() -> new ResourceNotFoundException("Profile not found"));
+        Profile profile = profiles.iterator().next();
+        UUID profileId = profile.getProfileId();
+
+        // find linkCollections by profileId
+        List<LinkCollectionView> linkCollections = linkCollectionService.findByProfileId(profileId).orElseThrow(() -> new ResourceNotFoundException("LinkCollection not found"));
+
+        if(linkCollections.isEmpty()) {
+            throw new ResourceNotFoundException("LinkCollection not found");
+        } else {
+            List<LinkCollectionUpdate> linkCollectionDTO = new ArrayList<>();
+            for (LinkCollectionView linkCollectionView : linkCollections) {
+                LinkCollectionUpdate entity = new LinkCollectionUpdate();
+                entity.setUrl(linkCollectionView.getUrl());
+                entity.setText(linkCollectionView.getText());
+                
+                linkCollectionDTO.add(entity);
+            }
+            
+            return linkCollectionDTO;
+        }
+
+
+    }
+
     @PutMapping("/linkCollections/{handle}/update")
-    public ResponseEntity<LinkCollection> updateByHandle(@PathVariable (value = "handle") String handle, @RequestParam String position, @RequestBody LinkCollectionUpdate entity) throws ResourceNotFoundException, WrongBodyException{
+    public ResponseEntity<LinkCollection> updateByHandle(
+        @PathVariable (value = "handle") String handle, 
+        @RequestParam String position, 
+        @RequestBody LinkCollectionUpdate entity
+    ) throws ResourceNotFoundException, WrongBodyException{
 
         // find user by handle
         Collection<Profile> profiles = profileService.findByHandle(handle).orElseThrow(() -> new ResourceNotFoundException("Profile not found"));
