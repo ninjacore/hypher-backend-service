@@ -25,6 +25,10 @@ public class ContentBoxService {
         return contentBoxRepository.findById(contentBoxId);
     }
 
+    public Optional<List<ContentBox>> findByPosition(String position){
+        return Optional.of(contentBoxRepository.findByContentBoxPosition(position));
+    }
+
     public List<ContentBox> findAll(){
         return contentBoxRepository.findAll();
     }
