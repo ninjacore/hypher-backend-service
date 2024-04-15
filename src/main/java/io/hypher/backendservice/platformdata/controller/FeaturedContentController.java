@@ -59,7 +59,19 @@ public class FeaturedContentController {
         return featuredContentService.findById(featuredContentId);
     }
 
-    @PutMapping("featuredContents/{handle}/update")
+    @GetMapping("/featuredContent")
+    public List<FeaturedContentView> getByProfileHandle(
+        @RequestParam String handle
+        ) throws ResourceNotFoundException {
+        
+        Collection<Profile> profiles = profileService.findByHandle(handle).orElseThrow(() -> new ResourceNotFoundException("Profile not found"));
+        Profile profile = profiles.iterator().next();
+        UUID profileId = profile.getProfileId();
+
+        return featuredContentService.findByProfileId(profileId).orElseThrow(() -> new ResourceNotFoundException("FeaturedContent not found"));
+    }
+
+    @PutMapping("/featuredContents/{handle}/update")
     public ResponseEntity<FeaturedContent> updateFeaturedContent(@PathVariable (value = "handle") String handle, @RequestParam String position, @RequestBody FeaturedContentUpdate entity) throws ResourceNotFoundException {
 
         // find user by handle

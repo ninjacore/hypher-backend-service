@@ -54,6 +54,23 @@ public class LinkCollectionController {
     public Optional<LinkCollection> create(@RequestBody LinkCollection linkCollection) {
         return linkCollectionService.save(linkCollection);        
     }
+
+    @GetMapping("/linkCollection")
+    public List<LinkCollectionView> getByProfileHandle(
+        @RequestParam String handle
+    )
+    throws ResourceNotFoundException{
+
+        // find user by handle
+        Collection<Profile> profiles = profileService.findByHandle(handle).orElseThrow(() -> new ResourceNotFoundException("Profile not found"));
+        Profile profile = profiles.iterator().next();
+        UUID profileId = profile.getProfileId();
+
+        // find linkCollections by profileId
+        return linkCollectionService.findByProfileId(profileId).orElseThrow(() -> new ResourceNotFoundException("LinkCollection not found"));
+
+    }
+    
     
     @PutMapping("/linkCollections/byHandle/{handle}")
     public Optional<LinkCollection> createByHandle(
