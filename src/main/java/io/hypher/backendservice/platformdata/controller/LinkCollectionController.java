@@ -302,6 +302,33 @@ public class LinkCollectionController {
         }
     }
 
+    @DeleteMapping("/linkCollection/link")
+    public String deleteLinkByHandle(
+        @RequestParam String handle, 
+        @RequestParam String position
+    )
+    throws ResourceNotFoundException{
+
+        // find profile by handle
+        Collection<Profile> profiles = profileService.findByHandle(handle).orElseThrow(() -> new ResourceNotFoundException("Profile not found"));
+
+        Profile profile = profiles.iterator().next();
+        UUID profileId = profile.getProfileId();
+
+        // find linkCollections by profileId
+        List<LinkCollectionView> linkCollections = linkCollectionService.findByProfileId(profileId).orElseThrow(() -> new ResourceNotFoundException("No LinkCollection found for this profile"));
+
+        // get the one with the right position
+        LinkCollectionView linkCollectionToDelete = linkCollections.stream()
+            .filter(lc -> lc.getPosition() == Integer.parseInt(position))
+            .findFirst().orElseThrow(() -> new ResourceNotFoundException("No link found at this position"));
+
+        LinkCollection actualLinkCollectionToDelete = linkCollectionService.findById(linkCollectionToDelete.getLinkCollectionId()).orElseThrow(() -> new ResourceNotFoundException("Cannot delete: LinkCollection not found"));
+
+
+        return linkCollectionService.delete(actualLinkCollectionToDelete);
+        }
+
 
     @DeleteMapping("/linkCollections/{id}")
     public String delete(@PathVariable(value = "id") UUID linkCollectionId) throws ResourceNotFoundException{
