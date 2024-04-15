@@ -1,12 +1,12 @@
 package io.hypher.backendservice.platformdata.dto;
 
-public class LinkCollectionUpdate {
+public class LinkOfLinkCollectionUpdate {
 
     String url;
 
     String text;
 
-    public LinkCollectionUpdate() {
+    public LinkOfLinkCollectionUpdate() {
     }
 
     public String getUrl() {

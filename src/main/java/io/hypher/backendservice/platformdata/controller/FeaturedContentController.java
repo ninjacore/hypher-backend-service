@@ -71,6 +71,7 @@ public class FeaturedContentController {
         return featuredContentService.findByProfileId(profileId).orElseThrow(() -> new ResourceNotFoundException("FeaturedContent not found"));
     }
 
+    // TODO: delete once split-content feature is implemented
     @PutMapping("/featuredContents/{handle}/update")
     public ResponseEntity<FeaturedContent> updateFeaturedContent(@PathVariable (value = "handle") String handle, @RequestParam String position, @RequestBody FeaturedContentUpdate entity) throws ResourceNotFoundException {
 
