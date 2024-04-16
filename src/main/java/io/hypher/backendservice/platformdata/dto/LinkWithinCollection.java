@@ -6,7 +6,7 @@ public class LinkWithinCollection {
 
     String text;
 
-    String position;
+    Integer position;
 
     public LinkWithinCollection() {
     }
@@ -27,11 +27,11 @@ public class LinkWithinCollection {
         this.text = text;
     }
 
-    public String getPosition() {
+    public Integer getPosition() {
         return position;
     }
 
-    public void setPosition(String position) {
+    public void setPosition(Integer position) {
         this.position = position;
     }
     
