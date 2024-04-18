@@ -109,28 +109,41 @@ public class LinkCollectionController {
 
     @GetMapping("/linkCollection")
     public List<LinkWithinCollection> getByProfileHandle(
-        @RequestParam String handle
+        @RequestParam String handle,
+        @RequestParam Optional<String> contentBoxPosition
     )
     throws ResourceNotFoundException{
+
+        List<LinkWithinCollection> linkCollectionDTO = new ArrayList<>();
 
         // find user by handle
         Collection<Profile> profiles = profileService.findByHandle(handle).orElseThrow(() -> new ResourceNotFoundException("Profile not found"));
         Profile profile = profiles.iterator().next();
         UUID profileId = profile.getProfileId();
 
-        // find linkCollections by profileId
-        // return linkCollectionService.findByProfileId(profileId).orElseThrow(() -> new ResourceNotFoundException("LinkCollection not found"));
-        List<LinkCollectionView> view = linkCollectionService.findByProfileId(profileId).orElseThrow(() -> new ResourceNotFoundException("LinkCollection not found"));
+
+        String positionOfContentBox = contentBoxPosition.orElse(null);
+        if(positionOfContentBox == null){
+            // assume default link collection...
         
-        List<LinkWithinCollection> linkCollectionDTO = new ArrayList<>();
-        for (LinkCollectionView linkCollectionView : view) {
-            LinkWithinCollection entity = new LinkWithinCollection();
-            entity.setUrl(linkCollectionView.getUrl());
-            entity.setText(linkCollectionView.getText());
-            entity.setPosition(linkCollectionView.getPosition());
+
+            // find linkCollections by profileId
+            // return linkCollectionService.findByProfileId(profileId).orElseThrow(() -> new ResourceNotFoundException("LinkCollection not found"));
+            List<LinkCollectionView> view = linkCollectionService.findByProfileId(profileId).orElseThrow(() -> new ResourceNotFoundException("LinkCollection not found"));
             
-            linkCollectionDTO.add(entity);
+            for (LinkCollectionView linkCollectionView : view) {
+                LinkWithinCollection entity = new LinkWithinCollection();
+                entity.setUrl(linkCollectionView.getUrl());
+                entity.setText(linkCollectionView.getText());
+                entity.setPosition(linkCollectionView.getPosition());
+                
+                linkCollectionDTO.add(entity);
+            }
+        }else{
+            // future feat: customizable position for context boxes
+            // find link collection at this position
         }
+
         return linkCollectionDTO;
 
     }
