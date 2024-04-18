@@ -9,9 +9,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import io.hypher.backendservice.platformdata.model.LinkCollection;
-import io.hypher.backendservice.platformdata.model.LinkCollectionView;
+import io.hypher.backendservice.platformdata.model.LinkCollectionWithProfileId;
+import io.hypher.backendservice.platformdata.model.LinkCollectionWithPositions;
 import io.hypher.backendservice.platformdata.repository.LinkCollectionRepository;
-import io.hypher.backendservice.platformdata.repository.LinkCollectionViewRepository;
+import io.hypher.backendservice.platformdata.repository.LinkCollectionWithProfileIdRepository;
+import io.hypher.backendservice.platformdata.repository.LinkCollectionWithPositionsRepository;
 
 @Service
 public class LinkCollectionService {
@@ -20,7 +22,10 @@ public class LinkCollectionService {
     private LinkCollectionRepository linkCollectionRepository;
 
     @Autowired
-    private LinkCollectionViewRepository linkCollectionViewRepository;
+    private LinkCollectionWithProfileIdRepository linkCollectionWithProfileIdRepository;
+
+    @Autowired
+    private LinkCollectionWithPositionsRepository linkCollectionWithPositionsRepository;
 
     public Optional<LinkCollection> save(LinkCollection linkCollection){
         LinkCollection savedLinkCollection = linkCollectionRepository.save(linkCollection);
@@ -31,9 +36,15 @@ public class LinkCollectionService {
         return linkCollectionRepository.findById(linkCollectionId);
     }
 
-    public Optional<List<LinkCollectionView>> findByProfileId(UUID profileId){
-        return Optional.of(linkCollectionViewRepository.findAllByProfileId(profileId));
+    public Optional<List<LinkCollectionWithProfileId>> findByProfileId(UUID profileId){
+        return Optional.of(linkCollectionWithProfileIdRepository.findAllByProfileId(profileId));
     }
+
+    public Optional<List<LinkCollectionWithPositions>> 
+    findByHandleAndPosition(String profileHandle, Integer contentBoxPosition){
+        return Optional.of(linkCollectionWithPositionsRepository.findAllByProfileHandleAndContentBoxPosition(profileHandle, String.valueOf(contentBoxPosition)));
+    }
+
 
     public List<LinkCollection> findAll(){
         return linkCollectionRepository.findAll();
