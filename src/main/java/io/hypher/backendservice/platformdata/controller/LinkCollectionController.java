@@ -169,7 +169,7 @@ public class LinkCollectionController {
         // verify the linkcollection exists and get the number of entries
         List<LinkCollectionView> linkCollections = linkCollectionService.findByProfileId(profileId).orElseThrow(() -> new ResourceNotFoundException("LinkCollection not found"));
         Integer numberOfEntries;
-        if(linkCollections.size() > 0 ) {
+        if(linkCollections.size() > 0 ) {   
             numberOfEntries = linkCollections.size();
         }else {
             throw new ResourceNotFoundException("LinkCollection not found");
@@ -177,13 +177,13 @@ public class LinkCollectionController {
 
         // check if the position is valid
         if(frontendLinkDTO.getPosition() > numberOfEntries-1) {
-            throw new ResourceNotFoundException("Position is invalid");
+            throw new ResourceNotFoundException("Link position is invalid");
         }
 
         // get the linkCollection entry to update
         LinkCollectionView linkCollectionToUpdate = linkCollections.stream()
             .filter(lc -> lc.getPosition() == frontendLinkDTO.getPosition())
-            .findFirst().orElseThrow(() -> new ResourceNotFoundException("LinkCollection not found")); 
+            .findFirst().orElseThrow(() -> new ResourceNotFoundException("No position found. Ary you trying to add a new entry instead of updating one?")); 
 
         // create the updatd linkCollection entry for that content box id
         LinkCollection linkCollection = new LinkCollection();
