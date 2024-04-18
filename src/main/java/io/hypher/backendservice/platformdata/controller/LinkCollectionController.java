@@ -7,7 +7,8 @@ import org.springframework.web.bind.annotation.RestController;
 import io.hypher.backendservice.platformdata.dto.LinkOfLinkCollectionUpdate;
 import io.hypher.backendservice.platformdata.model.LinkCollection;
 import io.hypher.backendservice.platformdata.dto.LinkWithinCollection;
-import io.hypher.backendservice.platformdata.model.LinkCollectionView;
+import io.hypher.backendservice.platformdata.model.LinkCollectionWithProfileId;
+import io.hypher.backendservice.platformdata.model.LinkCollectionWithPositions;
 import io.hypher.backendservice.platformdata.model.Profile;
 import io.hypher.backendservice.platformdata.model.ContentBox;
 
@@ -56,19 +57,108 @@ public class LinkCollectionController {
         return linkCollectionService.save(linkCollection);        
     }
 
+    @PostMapping("/linkCollection/link")
+    public Optional<LinkCollection> createLinkByHandle(
+        @RequestParam String handle, 
+        @RequestParam String contentBoxPosition,
+        @RequestBody LinkWithinCollection frontendLinkDTO
+        )
+    throws ResourceNotFoundException{
+            
+        // find user by handle
+        Collection<Profile> profiles = profileService.findByHandle(handle).orElseThrow(() -> new ResourceNotFoundException("Profile not found"));
+        Profile profile = profiles.iterator().next();
+        UUID profileId = profile.getProfileId();
+
+        // find contentboxId by position of linkedCollection
+        List<ContentBox> matchingContentBoxes = contentBoxService.findByPosition(contentBoxPosition).orElseThrow(() -> new ResourceNotFoundException("ContentBox not found"));
+
+        List<ContentBox> targetContentBoxes = new ArrayList<>();
+
+        matchingContentBoxes.forEach(box -> {
+            if(box.getProfileId().equals(profileId)) {
+                targetContentBoxes.add(box);
+            }
+        });
+
+        if(targetContentBoxes.size() > 1){
+            throw new ResourceNotFoundException("More than one matching content box found");
+        }
+        
+        UUID contentBoxId = targetContentBoxes.get(0).getContentBoxId();
+
+        // verify the linkcollection exists and get the number of entries
+        List<LinkCollectionWithProfileId> linkCollections = linkCollectionService.findByProfileId(profileId).orElseThrow(() -> new ResourceNotFoundException("LinkCollection not found"));
+        Integer numberOfEntries;
+        if(linkCollections.size() > 0) {
+            numberOfEntries = linkCollections.size();
+        }else {
+            throw new ResourceNotFoundException("LinkCollection not found");
+        }
+
+        // create new linkCollection entry for that content box id
+        LinkCollection linkCollection = new LinkCollection();
+        linkCollection.setContentBoxId(contentBoxId);
+        linkCollection.setPosition(numberOfEntries);
+        linkCollection.setUrl(frontendLinkDTO.getUrl());
+        linkCollection.setText(frontendLinkDTO.getText());
+
+        // save the new linkCollection entry
+        return linkCollectionService.save(linkCollection);
+    }
+
+
     @GetMapping("/linkCollection")
-    public List<LinkCollectionView> getByProfileHandle(
-        @RequestParam String handle
+    public List<LinkWithinCollection> getByProfileHandle(
+        @RequestParam String handle,
+        @RequestParam Optional<Integer> contentBoxPosition
     )
     throws ResourceNotFoundException{
+
+        List<LinkWithinCollection> linkCollectionDTO = new ArrayList<>();
 
         // find user by handle
         Collection<Profile> profiles = profileService.findByHandle(handle).orElseThrow(() -> new ResourceNotFoundException("Profile not found"));
         Profile profile = profiles.iterator().next();
         UUID profileId = profile.getProfileId();
 
-        // find linkCollections by profileId
-        return linkCollectionService.findByProfileId(profileId).orElseThrow(() -> new ResourceNotFoundException("LinkCollection not found"));
+
+        Integer positionOfContentBox = contentBoxPosition.orElse(null);
+        if(positionOfContentBox == null){
+            // assume default link collection position of '0'
+            // TODO: use new View
+
+            // find linkCollections by profileId
+            // return linkCollectionService.findByProfileId(profileId).orElseThrow(() -> new ResourceNotFoundException("LinkCollection not found"));
+            List<LinkCollectionWithProfileId> view = linkCollectionService.findByProfileId(profileId).orElseThrow(() -> new ResourceNotFoundException("LinkCollection not found"));
+            
+            for (LinkCollectionWithProfileId linkCollectionView : view) {
+                LinkWithinCollection entity = new LinkWithinCollection();
+                entity.setUrl(linkCollectionView.getUrl());
+                entity.setText(linkCollectionView.getText());
+                entity.setPosition(linkCollectionView.getPosition());
+                
+                linkCollectionDTO.add(entity);
+            }
+        }else{
+            // future feat: customizable position for context boxes
+            // meanwhile: used for new View that goes by positon
+
+            // find link collection at this position
+            List<LinkCollectionWithPositions> view = linkCollectionService.findByHandleAndPosition(handle, positionOfContentBox).orElseThrow(() -> new ResourceNotFoundException("LinkCollection not found"));
+            
+            for (LinkCollectionWithPositions linkCollectionView : view) {
+                LinkWithinCollection entity = new LinkWithinCollection();
+                entity.setUrl(linkCollectionView.getUrl());
+                entity.setText(linkCollectionView.getText());
+                entity.setPosition(linkCollectionView.getPosition());
+                
+                linkCollectionDTO.add(entity);
+            }
+            
+        }
+
+        return linkCollectionDTO;
 
     }
 
@@ -104,29 +194,29 @@ public class LinkCollectionController {
         UUID contentBoxId = targetContentBoxes.get(0).getContentBoxId();
 
         // verify the linkcollection exists and get the number of entries
-        List<LinkCollectionView> linkCollections = linkCollectionService.findByProfileId(profileId).orElseThrow(() -> new ResourceNotFoundException("LinkCollection not found"));
+        List<LinkCollectionWithProfileId> linkCollections = linkCollectionService.findByProfileId(profileId).orElseThrow(() -> new ResourceNotFoundException("LinkCollection not found"));
         Integer numberOfEntries;
-        if(linkCollections.size() > 0 ) {
+        if(linkCollections.size() > 0 ) {   
             numberOfEntries = linkCollections.size();
         }else {
             throw new ResourceNotFoundException("LinkCollection not found");
         }
 
         // check if the position is valid
-        if(Integer.parseInt(frontendLinkDTO.getPosition()) > numberOfEntries-1) {
-            throw new ResourceNotFoundException("Position is invalid");
+        if(frontendLinkDTO.getPosition() > numberOfEntries-1) {
+            throw new ResourceNotFoundException("Link position is invalid");
         }
 
         // get the linkCollection entry to update
-        LinkCollectionView linkCollectionToUpdate = linkCollections.stream()
-            .filter(lc -> lc.getPosition() == Integer.parseInt(frontendLinkDTO.getPosition()))
-            .findFirst().orElseThrow(() -> new ResourceNotFoundException("LinkCollection not found")); 
+        LinkCollectionWithProfileId linkCollectionToUpdate = linkCollections.stream()
+            .filter(lc -> lc.getPosition() == frontendLinkDTO.getPosition())
+            .findFirst().orElseThrow(() -> new ResourceNotFoundException("No position found. Ary you trying to add a new entry instead of updating one?")); 
 
         // create the updatd linkCollection entry for that content box id
         LinkCollection linkCollection = new LinkCollection();
         linkCollection.setLinkCollectionId(linkCollectionToUpdate.getLinkCollectionId());
         linkCollection.setContentBoxId(contentBoxId);
-        linkCollection.setPosition(Integer.parseInt(frontendLinkDTO.getPosition()));
+        linkCollection.setPosition(frontendLinkDTO.getPosition());
         linkCollection.setUrl(frontendLinkDTO.getUrl());
         linkCollection.setText(frontendLinkDTO.getText());
 
@@ -169,7 +259,7 @@ public class LinkCollectionController {
 
 
         // verify the linkcollection exists and get the number of entries
-        List<LinkCollectionView> linkCollections = linkCollectionService.findByProfileId(profileId).orElseThrow(() -> new ResourceNotFoundException("LinkCollection not found"));
+        List<LinkCollectionWithProfileId> linkCollections = linkCollectionService.findByProfileId(profileId).orElseThrow(() -> new ResourceNotFoundException("LinkCollection not found"));
         Integer numberOfEntries;
         if(linkCollections.size() > 0) {
             numberOfEntries = linkCollections.size();
@@ -229,13 +319,13 @@ public class LinkCollectionController {
         UUID profileId = profile.getProfileId();
 
         // find linkCollections by profileId
-        List<LinkCollectionView> linkCollections = linkCollectionService.findByProfileId(profileId).orElseThrow(() -> new ResourceNotFoundException("LinkCollection not found"));
+        List<LinkCollectionWithProfileId> linkCollections = linkCollectionService.findByProfileId(profileId).orElseThrow(() -> new ResourceNotFoundException("LinkCollection not found"));
 
         if(linkCollections.isEmpty()) {
             throw new ResourceNotFoundException("LinkCollection not found");
         } else {
             List<LinkOfLinkCollectionUpdate> linkCollectionDTO = new ArrayList<>();
-            for (LinkCollectionView linkCollectionView : linkCollections) {
+            for (LinkCollectionWithProfileId linkCollectionView : linkCollections) {
                 LinkOfLinkCollectionUpdate entity = new LinkOfLinkCollectionUpdate();
                 entity.setUrl(linkCollectionView.getUrl());
                 entity.setText(linkCollectionView.getText());
@@ -262,10 +352,10 @@ public class LinkCollectionController {
         UUID profileId = profile.getProfileId();
 
         // find linkCollection by profileId
-        List<LinkCollectionView> linkCollections = linkCollectionService.findByProfileId(profileId).orElseThrow(() -> new ResourceNotFoundException("LinkCollection not found"));
+        List<LinkCollectionWithProfileId> linkCollections = linkCollectionService.findByProfileId(profileId).orElseThrow(() -> new ResourceNotFoundException("LinkCollection not found"));
 
         // get the one with the right position
-        LinkCollectionView desiredLinkCollection = linkCollections.stream()
+        LinkCollectionWithProfileId desiredLinkCollection = linkCollections.stream()
             .filter(lc -> lc.getPosition() == Integer.parseInt(position))
             .findFirst().orElseThrow(() -> new ResourceNotFoundException("LinkCollection not found"));
 
@@ -316,10 +406,10 @@ public class LinkCollectionController {
         UUID profileId = profile.getProfileId();
 
         // find linkCollections by profileId
-        List<LinkCollectionView> linkCollections = linkCollectionService.findByProfileId(profileId).orElseThrow(() -> new ResourceNotFoundException("No LinkCollection found for this profile"));
+        List<LinkCollectionWithProfileId> linkCollections = linkCollectionService.findByProfileId(profileId).orElseThrow(() -> new ResourceNotFoundException("No LinkCollection found for this profile"));
 
         // get the one with the right position
-        LinkCollectionView linkCollectionToDelete = linkCollections.stream()
+        LinkCollectionWithProfileId linkCollectionToDelete = linkCollections.stream()
             .filter(lc -> lc.getPosition() == Integer.parseInt(position))
             .findFirst().orElseThrow(() -> new ResourceNotFoundException("No link found at this position"));
 

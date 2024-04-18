@@ -11,7 +11,7 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "link_collection_with_profile_id", schema = "public")
-public class LinkCollectionView {
+public class LinkCollectionWithProfileId {
 
     // unique_id
     @Id
@@ -38,9 +38,9 @@ public class LinkCollectionView {
     String text;
 
     // default constructor (hibernate.InstantiationException)
-    public LinkCollectionView(){}
+    public LinkCollectionWithProfileId(){}
 
-    public LinkCollectionView(UUID linkCollectionId, UUID contentBoxId, Integer position, String url, String text) {
+    public LinkCollectionWithProfileId(UUID linkCollectionId, UUID contentBoxId, Integer position, String url, String text) {
         this.linkCollectionId = linkCollectionId;
         this.contentBoxId = contentBoxId;
         this.position = position;
