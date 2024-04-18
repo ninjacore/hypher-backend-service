@@ -117,16 +117,15 @@ public class LinkCollectionController {
 
         List<LinkWithinCollection> linkCollectionDTO = new ArrayList<>();
 
-        // find user by handle
-        Collection<Profile> profiles = profileService.findByHandle(handle).orElseThrow(() -> new ResourceNotFoundException("Profile not found"));
-        Profile profile = profiles.iterator().next();
-        UUID profileId = profile.getProfileId();
-
-
         Integer positionOfContentBox = contentBoxPosition.orElse(null);
         if(positionOfContentBox == null){
             // assume default link collection position of '0'
             // TODO: use new View
+
+            // find user by handle
+            Collection<Profile> profiles = profileService.findByHandle(handle).orElseThrow(() -> new ResourceNotFoundException("Profile not found"));
+            Profile profile = profiles.iterator().next();
+            UUID profileId = profile.getProfileId();
 
             // find linkCollections by profileId
             // return linkCollectionService.findByProfileId(profileId).orElseThrow(() -> new ResourceNotFoundException("LinkCollection not found"));
