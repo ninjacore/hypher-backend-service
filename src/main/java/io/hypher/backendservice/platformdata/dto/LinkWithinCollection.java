@@ -8,6 +8,9 @@ public class LinkWithinCollection {
 
     Integer position;
 
+    // non-database id for client-side use
+    Long uniqueId;
+
     public LinkWithinCollection() {
     }
 
@@ -33,6 +36,14 @@ public class LinkWithinCollection {
 
     public void setPosition(Integer position) {
         this.position = position;
+    }
+
+    public Long getUniqueId() {
+        return uniqueId;
+    }
+
+    public void setUniqueId(Long uniqueId) {
+        this.uniqueId = uniqueId;
     }
     
     
