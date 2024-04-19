@@ -136,6 +136,7 @@ public class LinkCollectionController {
                 entity.setUrl(linkCollectionView.getUrl());
                 entity.setText(linkCollectionView.getText());
                 entity.setPosition(linkCollectionView.getPosition());
+                entity.setUniqueId(linkCollectionView.getUniqueId());
                 
                 linkCollectionDTO.add(entity);
             }
@@ -151,6 +152,7 @@ public class LinkCollectionController {
                 entity.setUrl(linkCollectionView.getUrl());
                 entity.setText(linkCollectionView.getText());
                 entity.setPosition(linkCollectionView.getPosition());
+                entity.setUniqueId(linkCollectionView.getUniqueId());
                 
                 linkCollectionDTO.add(entity);
             }
