@@ -218,6 +218,10 @@ public class LinkCollectionController {
             updatedLinkCollections.add(linkCollectionEntry);
         }
 
+
+        // all entries have to be deleted to avert inserts instead of updates
+        linkCollectionService.deleteByContentBoxId(contentBoxId);
+
         return linkCollectionService.saveAll(updatedLinkCollections);
     }
 
