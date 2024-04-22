@@ -15,7 +15,7 @@ import io.hypher.backendservice.platformdata.model.ContentBox;
 import io.hypher.backendservice.platformdata.service.ContentBoxService;
 import io.hypher.backendservice.platformdata.service.LinkCollectionService;
 import io.hypher.backendservice.platformdata.service.ProfileService;
-
+import io.hypher.backendservice.platformdata.utillity.error.DatabaseException;
 import io.hypher.backendservice.platformdata.utillity.error.ResourceNotFoundException;
 import io.hypher.backendservice.platformdata.utillity.error.WrongBodyException;
 
@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.integration.IntegrationProperties.Error;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -55,6 +56,42 @@ public class LinkCollectionController {
     @PostMapping("/linkCollections")
     public Optional<LinkCollection> create(@RequestBody LinkCollection linkCollection) {
         return linkCollectionService.save(linkCollection);        
+    }
+
+    @PostMapping("/linkCollection")
+    public Optional<List<LinkCollection>> createCollectionByHandle(
+        @RequestParam String handle, 
+        @RequestParam String contentBoxPosition,
+        @RequestBody List<LinkWithinCollection> listOfFrontendLinkDTOs
+        ) 
+        throws ResourceNotFoundException, DatabaseException{
+        
+        // find profile by handle
+        Collection<Profile> profiles = profileService.findByHandle(handle).orElseThrow(() -> new ResourceNotFoundException("Profile not found"));
+        Profile profile = profiles.iterator().next();
+        UUID profileId = profile.getProfileId();
+
+        // TODO: show error if already a content box at this position for this profile
+        // contentBoxService.findByPositionAndProfileId
+        
+        // 1. create content box entry
+        ContentBox contentBox = new ContentBox();
+        contentBox.setContentBoxPosition(contentBoxPosition);
+        contentBox.setProfileId(profileId);
+        ContentBox newContentBoxEntry = contentBoxService.save(contentBox).orElseThrow(() -> new DatabaseException("Could not create content box entry"));
+
+        // 2. create link collection entries
+        List<LinkCollection> linkCollections = new ArrayList<>();
+        for (LinkWithinCollection link : listOfFrontendLinkDTOs) {
+            LinkCollection linkCollection = new LinkCollection();
+            linkCollection.setContentBoxId(newContentBoxEntry.getContentBoxId());
+            linkCollection.setPosition(link.getPosition());
+            linkCollection.setUrl(link.getUrl());
+            linkCollection.setText(link.getText());
+            linkCollections.add(linkCollection);
+        }
+
+        return linkCollectionService.saveAll(linkCollections);
     }
 
     @PostMapping("/linkCollection/link")
