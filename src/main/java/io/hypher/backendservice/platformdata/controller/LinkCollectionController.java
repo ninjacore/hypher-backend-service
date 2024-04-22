@@ -163,6 +163,64 @@ public class LinkCollectionController {
 
     }
 
+    @PutMapping("/linkCollection/update")
+    public Optional<List<LinkCollection>> updateLinkCollectionByHandle(
+        @RequestParam String handle, 
+        @RequestParam String contentBoxPosition,
+        @RequestBody List<LinkWithinCollection> listOfFrontendLinkDTOs
+    )
+    throws ResourceNotFoundException{
+
+        // find profile by handle
+        Collection<Profile> profiles = profileService.findByHandle(handle).orElseThrow(() -> new ResourceNotFoundException("Profile not found"));
+        Profile profile = profiles.iterator().next();
+        UUID profileId = profile.getProfileId();
+
+        // find contentboxId by position of linkedCollection
+        List<ContentBox> matchingContentBoxes = contentBoxService.findByPosition(contentBoxPosition).orElseThrow(() -> new ResourceNotFoundException("ContentBox not found"));   
+
+        // filter for contentBoxes that belong to this profile
+        List<ContentBox> targetContentBoxes = new ArrayList<>();
+        matchingContentBoxes.forEach(box -> {
+            if(box.getProfileId().equals(profileId)) {
+                targetContentBoxes.add(box);
+            }
+        });
+        if(targetContentBoxes.size() > 1){
+            throw new ResourceNotFoundException("More than one matching content box found");
+        }
+
+        // basic mode: only update the first matching content box
+        UUID contentBoxId = targetContentBoxes.get(0).getContentBoxId();
+
+        // verify the linkcollection exists and get the number of entries
+        List<LinkCollectionWithProfileId> linkCollections = linkCollectionService.findByProfileId(profileId).orElseThrow(() -> new ResourceNotFoundException("LinkCollection not found"));
+        Integer numberOfEntries;
+        if(linkCollections.size() > 0 ) {   
+            numberOfEntries = linkCollections.size();
+        }else {
+            throw new ResourceNotFoundException("LinkCollection not found");
+        }
+
+
+        // prepare bulk update
+        List<LinkCollection> updatedLinkCollections = new ArrayList<>();
+        for (LinkWithinCollection link : listOfFrontendLinkDTOs) {
+            
+            // create the updatd linkCollection entry for that content box id
+            LinkCollection linkCollectionEntry = new LinkCollection();
+            // linkCollectionEntry.setLinkCollectionId(linkCollectionToUpdate.getLinkCollectionId());
+            linkCollectionEntry.setContentBoxId(contentBoxId);
+            linkCollectionEntry.setPosition(link.getPosition());
+            linkCollectionEntry.setUrl(link.getUrl());
+            linkCollectionEntry.setText(link.getText());
+
+            updatedLinkCollections.add(linkCollectionEntry);
+        }
+
+        return linkCollectionService.saveAll(updatedLinkCollections);
+    }
+
 
     @PutMapping("/linkCollection/link/update")
     public Optional<LinkCollection> updateLinkByHandle(

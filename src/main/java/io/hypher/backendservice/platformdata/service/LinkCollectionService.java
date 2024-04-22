@@ -32,6 +32,10 @@ public class LinkCollectionService {
         return Optional.of(savedLinkCollection);
     }
 
+    public Optional<List<LinkCollection>> saveAll(List<LinkCollection> linkCollections){
+        return Optional.of(linkCollectionRepository.saveAll(linkCollections));
+    }
+
     public Optional<LinkCollection> findById(UUID linkCollectionId){
         return linkCollectionRepository.findById(linkCollectionId);
     }
