@@ -21,6 +21,9 @@ import io.hypher.backendservice.platformdata.utillity.error.WrongBodyException;
 
 import java.util.Optional;
 import java.util.UUID;
+
+import javax.swing.text.html.Option;
+
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -201,12 +204,12 @@ public class LinkCollectionController {
     }
 
     @PutMapping("/linkCollection/update")
-    public Optional<List<LinkCollection>> updateLinkCollectionByHandle(
+    public Optional<List<LinkWithinCollection>> updateLinkCollectionByHandle(
         @RequestParam String handle, 
         @RequestParam String contentBoxPosition,
         @RequestBody List<LinkWithinCollection> listOfFrontendLinkDTOs
     )
-    throws ResourceNotFoundException{
+    throws ResourceNotFoundException, DatabaseException{
 
         // find profile by handle
         Collection<Profile> profiles = profileService.findByHandle(handle).orElseThrow(() -> new ResourceNotFoundException("Profile not found"));
@@ -259,17 +262,33 @@ public class LinkCollectionController {
         // all entries have to be deleted to avert inserts instead of updates
         linkCollectionService.deleteByContentBoxId(contentBoxId);
 
-        return linkCollectionService.saveAll(updatedLinkCollections);
+        // return linkCollectionService.saveAll(updatedLinkCollections);
+        List<LinkCollection> updatedLinkCollection = linkCollectionService.saveAll(updatedLinkCollections).orElseThrow( () -> new DatabaseException("Could not update link collection"));
+        
+        // prep and return updated collection
+        List<LinkWithinCollection> listForClient = new ArrayList<>();
+        Long counter = 0L;
+        updatedLinkCollection.forEach(link -> {
+            LinkWithinCollection entity = new LinkWithinCollection();
+            entity.setUrl(link.getUrl());
+            entity.setText(link.getText());
+            entity.setPosition(link.getPosition());
+            entity.setUniqueId(Long.valueOf(counter));
+            
+            listForClient.add(entity);
+        });
+        
+        return Optional.of(listForClient);
     }
 
 
     @PutMapping("/linkCollection/link/update")
-    public Optional<LinkCollection> updateLinkByHandle(
+    public List<LinkWithinCollection> updateLinkByHandle(
         @RequestParam String handle, 
         @RequestParam String contentBoxPosition,
         @RequestBody LinkWithinCollection frontendLinkDTO
         ) 
-    throws ResourceNotFoundException{
+    throws ResourceNotFoundException, DatabaseException{
 
         // find profile by handle
         Collection<Profile> profiles = profileService.findByHandle(handle).orElseThrow(() -> new ResourceNotFoundException("Profile not found"));
@@ -321,7 +340,28 @@ public class LinkCollectionController {
         linkCollection.setText(frontendLinkDTO.getText());
 
         // update link in this linkCollection
-        return linkCollectionService.save(linkCollection);
+        try {
+            linkCollectionService.save(linkCollection);
+        } catch (Exception e) {
+            throw new DatabaseException("Could not update link");
+        }
+
+        // prep and return updated collection
+        List<LinkCollectionWithProfileId> updatedLinkCollection = linkCollectionService.findByProfileId(profileId).orElseThrow(() -> new ResourceNotFoundException("Updated LinkCollection not found"));
+
+        List<LinkWithinCollection> listForClient = new ArrayList<>();
+        updatedLinkCollection.forEach(link -> {
+            LinkWithinCollection entity = new LinkWithinCollection();
+            entity.setUrl(link.getUrl());
+            entity.setText(link.getText());
+            entity.setPosition(link.getPosition());
+            entity.setUniqueId(link.getUniqueId());
+            
+            listForClient.add(entity);
+        });
+
+        
+        return listForClient;
     }
 
 
