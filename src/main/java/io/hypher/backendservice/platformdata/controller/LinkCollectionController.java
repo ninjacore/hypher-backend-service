@@ -267,8 +267,10 @@ public class LinkCollectionController {
         
         // prep and return updated collection
         List<LinkWithinCollection> listForClient = new ArrayList<>();
-        Long counter = 0L;
-        updatedLinkCollection.forEach(link -> {
+        
+
+        for(Integer counter = 0; counter < updatedLinkCollection.size(); counter++) {
+            LinkCollection link = updatedLinkCollection.get(counter);
             LinkWithinCollection entity = new LinkWithinCollection();
             entity.setUrl(link.getUrl());
             entity.setText(link.getText());
@@ -276,7 +278,7 @@ public class LinkCollectionController {
             entity.setUniqueId(Long.valueOf(counter));
             
             listForClient.add(entity);
-        });
+        }
         
         return Optional.of(listForClient);
     }
