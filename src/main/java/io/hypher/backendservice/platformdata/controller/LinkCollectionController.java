@@ -58,7 +58,7 @@ public class LinkCollectionController {
 
     @PostMapping("/linkCollections")
     public Optional<LinkCollection> create(@RequestBody LinkCollection linkCollection) {
-        return linkCollectionService.save(linkCollection);        
+        return Optional.of(linkCollectionService.save(linkCollection));
     }
 
     @PostMapping("/linkCollection")
@@ -144,7 +144,7 @@ public class LinkCollectionController {
         linkCollection.setText(frontendLinkDTO.getText());
 
         // save the new linkCollection entry
-        return linkCollectionService.save(linkCollection);
+        return Optional.of(linkCollectionService.save(linkCollection));
     }
 
 
@@ -343,27 +343,42 @@ public class LinkCollectionController {
 
         // update link in this linkCollection
         try {
-            linkCollectionService.save(linkCollection);
+            // continue once the entry has been updated...
+            LinkCollection updatedEntry = linkCollectionService.save(linkCollection);
+
+            // prep and return updated collection
+            List<LinkCollectionWithProfileId> updatedLinkCollection = linkCollectionService.findByProfileId(profileId).orElseThrow(() -> new ResourceNotFoundException("Updated LinkCollection not found"));
+
+            List<LinkWithinCollection> listForClient = new ArrayList<>();
+            updatedLinkCollection.forEach(link -> {
+
+                LinkWithinCollection entity = new LinkWithinCollection();
+
+                // to ensure we send back the updated entry
+                if(link.getLinkCollectionId() == updatedEntry.getLinkCollectionId()){
+                    entity.setUrl(updatedEntry.getUrl());
+                    entity.setText(updatedEntry.getText());
+                    entity.setPosition(updatedEntry.getPosition());
+                    entity.setUniqueId(link.getUniqueId());
+                }else{
+                    entity.setUrl(link.getUrl());
+                    entity.setText(link.getText());
+                    entity.setPosition(link.getPosition());
+                    entity.setUniqueId(link.getUniqueId());
+                }
+                
+                listForClient.add(entity);
+            });
+
+            
+            return listForClient;
+
+
         } catch (Exception e) {
             throw new DatabaseException("Could not update link");
         }
 
-        // prep and return updated collection
-        List<LinkCollectionWithProfileId> updatedLinkCollection = linkCollectionService.findByProfileId(profileId).orElseThrow(() -> new ResourceNotFoundException("Updated LinkCollection not found"));
 
-        List<LinkWithinCollection> listForClient = new ArrayList<>();
-        updatedLinkCollection.forEach(link -> {
-            LinkWithinCollection entity = new LinkWithinCollection();
-            entity.setUrl(link.getUrl());
-            entity.setText(link.getText());
-            entity.setPosition(link.getPosition());
-            entity.setUniqueId(link.getUniqueId());
-            
-            listForClient.add(entity);
-        });
-
-        
-        return listForClient;
     }
 
 
@@ -420,7 +435,7 @@ public class LinkCollectionController {
         linkCollection.setText(linkCollectionDTO.getText());
 
         // save the new linkCollection entry
-        return linkCollectionService.save(linkCollection);
+        return Optional.of(linkCollectionService.save(linkCollection));
 
         //////////////////// OLD CODE ///////////////////
 
@@ -525,8 +540,8 @@ public class LinkCollectionController {
 
         // security: only save if body and path variable are the same
         if (updatedLinkCollection.getLinkCollectionId().toString().equals(linkCollectionId.toString())) {
-            LinkCollection updatedLinkCollectionFromDatabase = linkCollectionService.save(updatedLinkCollection)
-                .orElseThrow(() -> new ResourceNotFoundException("LinkCollection not found"));
+            LinkCollection updatedLinkCollectionFromDatabase = linkCollectionService.save(updatedLinkCollection);
+                // .orElseThrow(() -> new ResourceNotFoundException("LinkCollection not found"));
             return ResponseEntity.ok(updatedLinkCollectionFromDatabase);
 
         } else {

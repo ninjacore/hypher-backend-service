@@ -27,9 +27,10 @@ public class LinkCollectionService {
     @Autowired
     private LinkCollectionWithPositionsRepository linkCollectionWithPositionsRepository;
 
-    public Optional<LinkCollection> save(LinkCollection linkCollection){
+    public LinkCollection save(LinkCollection linkCollection){
         LinkCollection savedLinkCollection = linkCollectionRepository.save(linkCollection);
-        return Optional.of(savedLinkCollection);
+        // return Optional.of(savedLinkCollection);
+        return savedLinkCollection;
     }
 
     public Optional<List<LinkCollection>> saveAll(List<LinkCollection> linkCollections){
