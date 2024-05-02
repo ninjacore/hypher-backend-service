@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.actuate.autoconfigure.metrics.MetricsProperties.Data;
 import org.springframework.boot.autoconfigure.integration.IntegrationProperties.Error;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -550,11 +551,11 @@ public class LinkCollectionController {
     }
 
     @DeleteMapping("/linkCollection/link")
-    public String deleteLinkByHandle(
+    public LinkWithinCollection deleteLinkByHandle(
         @RequestParam String handle, 
         @RequestParam String position
     )
-    throws ResourceNotFoundException{
+    throws ResourceNotFoundException, DatabaseException{
 
         // find profile by handle
         Collection<Profile> profiles = profileService.findByHandle(handle).orElseThrow(() -> new ResourceNotFoundException("Profile not found"));
@@ -573,16 +574,34 @@ public class LinkCollectionController {
         LinkCollection actualLinkCollectionToDelete = linkCollectionService.findById(linkCollectionToDelete.getLinkCollectionId()).orElseThrow(() -> new ResourceNotFoundException("Cannot delete: LinkCollection not found"));
 
 
-        return linkCollectionService.delete(actualLinkCollectionToDelete);
-        }
+        // return linkCollectionService.delete(actualLinkCollectionToDelete);
+        Boolean linkGotDeleted = linkCollectionService.delete(actualLinkCollectionToDelete);
+        if(linkGotDeleted){
+            LinkWithinCollection deletedLink = new LinkWithinCollection();
+            deletedLink.setUrl(actualLinkCollectionToDelete.getUrl());
+            deletedLink.setText(actualLinkCollectionToDelete.getText());
+            deletedLink.setPosition(actualLinkCollectionToDelete.getPosition());
+            
+            return deletedLink;
+        }else{
+            throw new DatabaseException("Could not delete link");
+        } 
+    }
 
 
     @DeleteMapping("/linkCollections/{id}")
-    public String delete(@PathVariable(value = "id") UUID linkCollectionId) throws ResourceNotFoundException{
+    public String delete(@PathVariable(value = "id") UUID linkCollectionId) throws ResourceNotFoundException, DatabaseException{
 
         LinkCollection linkCollectionToDelete = linkCollectionService.findById(linkCollectionId).orElseThrow(() -> new ResourceNotFoundException("LinkCollection not found"));
 
-        return linkCollectionService.delete(linkCollectionToDelete);
+        // return linkCollectionService.delete(linkCollectionToDelete);
+        Boolean linkGotDeleted = linkCollectionService.delete(linkCollectionToDelete);
+        if(linkGotDeleted){
+            return "{}";
+        }else{
+            throw new DatabaseException("Could not delete link");
+        } 
+
     }
     
     
