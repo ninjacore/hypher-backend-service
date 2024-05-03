@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.actuate.autoconfigure.metrics.MetricsProperties.Data;
 import org.springframework.boot.autoconfigure.integration.IntegrationProperties.Error;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -103,15 +104,33 @@ public class LinkCollectionController {
         @RequestParam String contentBoxPosition,
         @RequestBody LinkWithinCollection frontendLinkDTO
         )
-    throws ResourceNotFoundException{
+    throws ResourceNotFoundException, DatabaseException{
             
         // find user by handle
         Collection<Profile> profiles = profileService.findByHandle(handle).orElseThrow(() -> new ResourceNotFoundException("Profile not found"));
         Profile profile = profiles.iterator().next();
         UUID profileId = profile.getProfileId();
 
-        // find contentboxId by position of linkedCollection
-        List<ContentBox> matchingContentBoxes = contentBoxService.findByPosition(contentBoxPosition).orElseThrow(() -> new ResourceNotFoundException("ContentBox not found"));
+        List<ContentBox> matchingContentBoxes = new ArrayList<>();
+        try {
+            // find contentboxId by position of linkedCollection
+            matchingContentBoxes = contentBoxService.findByPosition(contentBoxPosition).orElseThrow(() -> new ResourceNotFoundException("ContentBox not found"));
+
+        } catch (ResourceNotFoundException e) {
+            // if doesn't exist, create content box, then linkCollection
+            ContentBox contentBox = new ContentBox();
+            contentBox.setContentBoxPosition(contentBoxPosition);
+            contentBox.setProfileId(profileId);
+            ContentBox newContentBoxEntry = contentBoxService.save(contentBox).orElseThrow(() -> new DatabaseException("Could not create content box entry"));
+
+            // create new linkCollection entry for that content box id
+            LinkCollection linkCollection = new LinkCollection();
+            linkCollection.setContentBoxId(newContentBoxEntry.getContentBoxId());
+            linkCollection.setPosition(frontendLinkDTO.getPosition());
+            linkCollection.setUrl(frontendLinkDTO.getUrl());
+            linkCollection.setText(frontendLinkDTO.getText());
+            return Optional.of(linkCollectionService.save(linkCollection));            
+        }
 
         List<ContentBox> targetContentBoxes = new ArrayList<>();
 
@@ -133,7 +152,14 @@ public class LinkCollectionController {
         if(linkCollections.size() > 0) {
             numberOfEntries = linkCollections.size();
         }else {
-            throw new ResourceNotFoundException("LinkCollection not found");
+
+            // if first addition, create new linkCollection entry for that content box id
+            LinkCollection linkCollection = new LinkCollection();
+            linkCollection.setContentBoxId(contentBoxId);
+            linkCollection.setPosition(frontendLinkDTO.getPosition());
+            linkCollection.setUrl(frontendLinkDTO.getUrl());
+            linkCollection.setText(frontendLinkDTO.getText());
+            return Optional.of(linkCollectionService.save(linkCollection));  
         }
 
         // create new linkCollection entry for that content box id
@@ -550,11 +576,11 @@ public class LinkCollectionController {
     }
 
     @DeleteMapping("/linkCollection/link")
-    public String deleteLinkByHandle(
+    public LinkWithinCollection deleteLinkByHandle(
         @RequestParam String handle, 
         @RequestParam String position
     )
-    throws ResourceNotFoundException{
+    throws ResourceNotFoundException, DatabaseException{
 
         // find profile by handle
         Collection<Profile> profiles = profileService.findByHandle(handle).orElseThrow(() -> new ResourceNotFoundException("Profile not found"));
@@ -573,16 +599,34 @@ public class LinkCollectionController {
         LinkCollection actualLinkCollectionToDelete = linkCollectionService.findById(linkCollectionToDelete.getLinkCollectionId()).orElseThrow(() -> new ResourceNotFoundException("Cannot delete: LinkCollection not found"));
 
 
-        return linkCollectionService.delete(actualLinkCollectionToDelete);
-        }
+        // return linkCollectionService.delete(actualLinkCollectionToDelete);
+        Boolean linkGotDeleted = linkCollectionService.delete(actualLinkCollectionToDelete);
+        if(linkGotDeleted){
+            LinkWithinCollection deletedLink = new LinkWithinCollection();
+            deletedLink.setUrl(actualLinkCollectionToDelete.getUrl());
+            deletedLink.setText(actualLinkCollectionToDelete.getText());
+            deletedLink.setPosition(actualLinkCollectionToDelete.getPosition());
+            
+            return deletedLink;
+        }else{
+            throw new DatabaseException("Could not delete link");
+        } 
+    }
 
 
     @DeleteMapping("/linkCollections/{id}")
-    public String delete(@PathVariable(value = "id") UUID linkCollectionId) throws ResourceNotFoundException{
+    public String delete(@PathVariable(value = "id") UUID linkCollectionId) throws ResourceNotFoundException, DatabaseException{
 
         LinkCollection linkCollectionToDelete = linkCollectionService.findById(linkCollectionId).orElseThrow(() -> new ResourceNotFoundException("LinkCollection not found"));
 
-        return linkCollectionService.delete(linkCollectionToDelete);
+        // return linkCollectionService.delete(linkCollectionToDelete);
+        Boolean linkGotDeleted = linkCollectionService.delete(linkCollectionToDelete);
+        if(linkGotDeleted){
+            return "{}";
+        }else{
+            throw new DatabaseException("Could not delete link");
+        } 
+
     }
     
     

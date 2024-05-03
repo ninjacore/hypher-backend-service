@@ -55,7 +55,7 @@ public class LinkCollectionService {
         return linkCollectionRepository.findAll();
     }
 
-    public String delete(LinkCollection linkCollection){
+    public Boolean delete(LinkCollection linkCollection){
 
         boolean linkCollectionDeleted;
 
@@ -66,7 +66,8 @@ public class LinkCollectionService {
             linkCollectionDeleted = false;
         }
 
-        return "LinkCollection deleted? -> " + linkCollectionDeleted;
+        // return "LinkCollection deleted? -> " + linkCollectionDeleted;
+        return linkCollectionDeleted;
     }
 
     @Transactional
