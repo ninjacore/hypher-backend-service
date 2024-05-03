@@ -202,7 +202,8 @@ public class LinkCollectionController {
                 entity.setUrl(linkCollectionView.getUrl());
                 entity.setText(linkCollectionView.getText());
                 entity.setPosition(linkCollectionView.getPosition());
-                entity.setUniqueId(linkCollectionView.getUniqueId());
+                // entity.setUniqueId(linkCollectionView.getUniqueId());
+                entity.setUniqueId(UUID.randomUUID().toString()); // only for frontend use
                 
                 linkCollectionDTO.add(entity);
             }
@@ -218,7 +219,8 @@ public class LinkCollectionController {
                 entity.setUrl(linkCollectionView.getUrl());
                 entity.setText(linkCollectionView.getText());
                 entity.setPosition(linkCollectionView.getPosition());
-                entity.setUniqueId(linkCollectionView.getUniqueId());
+                // entity.setUniqueId(linkCollectionView.getUniqueId());
+                entity.setUniqueId(UUID.randomUUID().toString()); // only for frontend use
                 
                 linkCollectionDTO.add(entity);
             }
@@ -301,7 +303,8 @@ public class LinkCollectionController {
             entity.setUrl(link.getUrl());
             entity.setText(link.getText());
             entity.setPosition(link.getPosition());
-            entity.setUniqueId(Long.valueOf(counter));
+            // entity.setUniqueId(Long.valueOf(counter));
+            entity.setUniqueId(UUID.randomUUID().toString()); // only for frontend use
             
             listForClient.add(entity);
         }
@@ -386,12 +389,16 @@ public class LinkCollectionController {
                     entity.setUrl(updatedEntry.getUrl());
                     entity.setText(updatedEntry.getText());
                     entity.setPosition(updatedEntry.getPosition());
-                    entity.setUniqueId(link.getUniqueId());
+                    // entity.setUniqueId(link.getUniqueId());
+                    entity.setUniqueId(UUID.randomUUID().toString()); // only for frontend use
+
                 }else{
                     entity.setUrl(link.getUrl());
                     entity.setText(link.getText());
                     entity.setPosition(link.getPosition());
-                    entity.setUniqueId(link.getUniqueId());
+                    // entity.setUniqueId(link.getUniqueId());
+                    entity.setUniqueId(UUID.randomUUID().toString()); // only for frontend use
+
                 }
                 
                 listForClient.add(entity);
