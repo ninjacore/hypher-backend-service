@@ -104,15 +104,33 @@ public class LinkCollectionController {
         @RequestParam String contentBoxPosition,
         @RequestBody LinkWithinCollection frontendLinkDTO
         )
-    throws ResourceNotFoundException{
+    throws ResourceNotFoundException, DatabaseException{
             
         // find user by handle
         Collection<Profile> profiles = profileService.findByHandle(handle).orElseThrow(() -> new ResourceNotFoundException("Profile not found"));
         Profile profile = profiles.iterator().next();
         UUID profileId = profile.getProfileId();
 
-        // find contentboxId by position of linkedCollection
-        List<ContentBox> matchingContentBoxes = contentBoxService.findByPosition(contentBoxPosition).orElseThrow(() -> new ResourceNotFoundException("ContentBox not found"));
+        List<ContentBox> matchingContentBoxes = new ArrayList<>();
+        try {
+            // find contentboxId by position of linkedCollection
+            matchingContentBoxes = contentBoxService.findByPosition(contentBoxPosition).orElseThrow(() -> new ResourceNotFoundException("ContentBox not found"));
+
+        } catch (ResourceNotFoundException e) {
+            // if doesn't exist, create content box, then linkCollection
+            ContentBox contentBox = new ContentBox();
+            contentBox.setContentBoxPosition(contentBoxPosition);
+            contentBox.setProfileId(profileId);
+            ContentBox newContentBoxEntry = contentBoxService.save(contentBox).orElseThrow(() -> new DatabaseException("Could not create content box entry"));
+
+            // create new linkCollection entry for that content box id
+            LinkCollection linkCollection = new LinkCollection();
+            linkCollection.setContentBoxId(newContentBoxEntry.getContentBoxId());
+            linkCollection.setPosition(frontendLinkDTO.getPosition());
+            linkCollection.setUrl(frontendLinkDTO.getUrl());
+            linkCollection.setText(frontendLinkDTO.getText());
+            return Optional.of(linkCollectionService.save(linkCollection));            
+        }
 
         List<ContentBox> targetContentBoxes = new ArrayList<>();
 
@@ -134,7 +152,14 @@ public class LinkCollectionController {
         if(linkCollections.size() > 0) {
             numberOfEntries = linkCollections.size();
         }else {
-            throw new ResourceNotFoundException("LinkCollection not found");
+
+            // if first addition, create new linkCollection entry for that content box id
+            LinkCollection linkCollection = new LinkCollection();
+            linkCollection.setContentBoxId(contentBoxId);
+            linkCollection.setPosition(frontendLinkDTO.getPosition());
+            linkCollection.setUrl(frontendLinkDTO.getUrl());
+            linkCollection.setText(frontendLinkDTO.getText());
+            return Optional.of(linkCollectionService.save(linkCollection));  
         }
 
         // create new linkCollection entry for that content box id
