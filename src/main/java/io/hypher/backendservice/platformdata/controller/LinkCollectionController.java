@@ -349,10 +349,11 @@ public class LinkCollectionController {
             throw new ResourceNotFoundException("LinkCollection not found");
         }
 
-        // check if the position is valid
-        if(frontendLinkDTO.getPosition() > numberOfEntries-1) {
-            throw new ResourceNotFoundException("Link position is invalid");
-        }
+        // check if the position is valid -- skipping for now since 'positions' aren't running from 0 atm
+        // if(frontendLinkDTO.getPosition() > numberOfEntries-1) {
+        //     String answer = "Link position is invalid. Number of entries = " + numberOfEntries;
+        //     throw new ResourceNotFoundException(answer);
+        // }
 
         // get the linkCollection entry to update
         LinkCollectionWithProfileId linkCollectionToUpdate = linkCollections.stream()
