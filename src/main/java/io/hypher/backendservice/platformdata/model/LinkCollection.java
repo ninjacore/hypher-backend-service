@@ -30,15 +30,19 @@ public class LinkCollection {
     @Column(name = "text")
     String text;
 
+    @Column(name = "frontend_id")
+    String frontendId;
+
     // default constructor (hibernate.InstantiationException)
     public LinkCollection(){}
 
-    public LinkCollection(UUID linkCollectionId, UUID contentBoxId, Integer position, String url, String text) {
+    public LinkCollection(UUID linkCollectionId, UUID contentBoxId, Integer position, String url, String text, String frontendId) {
         this.linkCollectionId = linkCollectionId;
         this.contentBoxId = contentBoxId;
         this.position = position;
         this.url = url;
         this.text = text;
+        this.frontendId = frontendId;
     }
 
     public UUID getLinkCollectionId() {
@@ -79,6 +83,16 @@ public class LinkCollection {
 
     public void setText(String text) {
         this.text = text;
+    }
+
+    public String getFrontendId() {
+        return frontendId;
+    }
+
+    public void setFrontendId(String frontendId) {
+        this.frontendId = frontendId;
     } 
     
+    
+
 }
