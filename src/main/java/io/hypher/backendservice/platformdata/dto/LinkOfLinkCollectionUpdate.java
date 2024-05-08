@@ -6,6 +6,8 @@ public class LinkOfLinkCollectionUpdate {
 
     String text;
 
+    String frontendId;
+
     public LinkOfLinkCollectionUpdate() {
     }
 
@@ -25,6 +27,12 @@ public class LinkOfLinkCollectionUpdate {
         this.text = text;
     }
 
-    
+    public String getFrontendId() {
+        return frontendId;
+    }
+
+    public void setFrontendId(String frontendId) {
+        this.frontendId = frontendId;
+    }
     
 }

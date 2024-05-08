@@ -18,6 +18,9 @@ public class LinkCollectionWithPositions {
     @Column(name = "unique_id")
     Long uniqueId;
 
+    @Column(name = "link_collection_frontend_id")
+    String frontendId;
+
     // profile.handle AS profile_handle,
     @Column(name = "profile_handle")
     String profileHandle;
@@ -54,7 +57,7 @@ public class LinkCollectionWithPositions {
     public LinkCollectionWithPositions() {
     }
     
-    public LinkCollectionWithPositions(String profileHandle, UUID profileId, UUID contentBoxId, String contentBoxPosition, UUID linkCollectionId, Integer position, String url, String text) {
+    public LinkCollectionWithPositions(String profileHandle, UUID profileId, UUID contentBoxId, String contentBoxPosition, UUID linkCollectionId, Integer position, String url, String text, String frontendId) {
         this.profileHandle = profileHandle;
         this.profileId = profileId;
         this.contentBoxId = contentBoxId;
@@ -63,6 +66,7 @@ public class LinkCollectionWithPositions {
         this.position = position;
         this.url = url;
         this.text = text;
+        this.frontendId = frontendId;
     }
 
     public Long getUniqueId() {
@@ -135,6 +139,14 @@ public class LinkCollectionWithPositions {
 
     public void setText(String text) {
         this.text = text;
+    }
+
+    public String getFrontendId() {
+        return frontendId;
+    }
+
+    public void setFrontendId(String frontendId) {
+        this.frontendId = frontendId;
     }
 
 }

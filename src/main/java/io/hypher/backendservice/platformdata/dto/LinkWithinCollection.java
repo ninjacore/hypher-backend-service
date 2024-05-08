@@ -8,8 +8,10 @@ public class LinkWithinCollection {
 
     Integer position;
 
+    String frontendId;
+
     // non-database id for client-side use
-    // Long uniqueId;
+    // TODO: delete
     String uniqueId;
 
     public LinkWithinCollection() {
@@ -45,6 +47,14 @@ public class LinkWithinCollection {
 
     public void setUniqueId(String uniqueId) {
         this.uniqueId = uniqueId;
+    }
+
+    public String getFrontendId() {
+        return frontendId;
+    }
+
+    public void setFrontendId(String frontendId) {
+        this.frontendId = frontendId;
     }
     
     

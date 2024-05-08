@@ -88,10 +88,13 @@ public class LinkCollectionController {
         List<LinkCollection> linkCollections = new ArrayList<>();
         for (LinkWithinCollection link : listOfFrontendLinkDTOs) {
             LinkCollection linkCollection = new LinkCollection();
+
             linkCollection.setContentBoxId(newContentBoxEntry.getContentBoxId());
+            linkCollection.setFrontendId(link.getFrontendId());
             linkCollection.setPosition(link.getPosition());
             linkCollection.setUrl(link.getUrl());
             linkCollection.setText(link.getText());
+
             linkCollections.add(linkCollection);
         }
 
@@ -125,10 +128,13 @@ public class LinkCollectionController {
 
             // create new linkCollection entry for that content box id
             LinkCollection linkCollection = new LinkCollection();
+
             linkCollection.setContentBoxId(newContentBoxEntry.getContentBoxId());
+            linkCollection.setFrontendId(frontendLinkDTO.getFrontendId());
             linkCollection.setPosition(frontendLinkDTO.getPosition());
             linkCollection.setUrl(frontendLinkDTO.getUrl());
             linkCollection.setText(frontendLinkDTO.getText());
+
             return Optional.of(linkCollectionService.save(linkCollection));            
         }
 
@@ -155,16 +161,20 @@ public class LinkCollectionController {
 
             // if first addition, create new linkCollection entry for that content box id
             LinkCollection linkCollection = new LinkCollection();
+
             linkCollection.setContentBoxId(contentBoxId);
+            linkCollection.setFrontendId(frontendLinkDTO.getFrontendId());
             linkCollection.setPosition(frontendLinkDTO.getPosition());
             linkCollection.setUrl(frontendLinkDTO.getUrl());
             linkCollection.setText(frontendLinkDTO.getText());
+
             return Optional.of(linkCollectionService.save(linkCollection));  
         }
 
         // create new linkCollection entry for that content box id
         LinkCollection linkCollection = new LinkCollection();
         linkCollection.setContentBoxId(contentBoxId);
+        linkCollection.setFrontendId(frontendLinkDTO.getFrontendId());
         linkCollection.setPosition(numberOfEntries);
         linkCollection.setUrl(frontendLinkDTO.getUrl());
         linkCollection.setText(frontendLinkDTO.getText());
@@ -199,6 +209,8 @@ public class LinkCollectionController {
             
             for (LinkCollectionWithProfileId linkCollectionView : view) {
                 LinkWithinCollection entity = new LinkWithinCollection();
+
+                entity.setFrontendId(linkCollectionView.getFrontendId());
                 entity.setUrl(linkCollectionView.getUrl());
                 entity.setText(linkCollectionView.getText());
                 entity.setPosition(linkCollectionView.getPosition());
@@ -216,6 +228,7 @@ public class LinkCollectionController {
             
             for (LinkCollectionWithPositions linkCollectionView : view) {
                 LinkWithinCollection entity = new LinkWithinCollection();
+                entity.setFrontendId(linkCollectionView.getFrontendId());
                 entity.setUrl(linkCollectionView.getUrl());
                 entity.setText(linkCollectionView.getText());
                 entity.setPosition(linkCollectionView.getPosition());
@@ -278,6 +291,7 @@ public class LinkCollectionController {
             // create the updatd linkCollection entry for that content box id
             LinkCollection linkCollectionEntry = new LinkCollection();
             // linkCollectionEntry.setLinkCollectionId(linkCollectionToUpdate.getLinkCollectionId());
+            linkCollectionEntry.setFrontendId(link.getFrontendId());
             linkCollectionEntry.setContentBoxId(contentBoxId);
             linkCollectionEntry.setPosition(link.getPosition());
             linkCollectionEntry.setUrl(link.getUrl());
@@ -300,6 +314,8 @@ public class LinkCollectionController {
         for(Integer counter = 0; counter < updatedLinkCollection.size(); counter++) {
             LinkCollection link = updatedLinkCollection.get(counter);
             LinkWithinCollection entity = new LinkWithinCollection();
+
+            entity.setFrontendId(link.getFrontendId());
             entity.setUrl(link.getUrl());
             entity.setText(link.getText());
             entity.setPosition(link.getPosition());
@@ -365,8 +381,10 @@ public class LinkCollectionController {
 
         // create the updatd linkCollection entry for that content box id
         LinkCollection linkCollection = new LinkCollection();
+
         linkCollection.setLinkCollectionId(linkCollectionToUpdate.getLinkCollectionId());
         linkCollection.setContentBoxId(contentBoxId);
+        linkCollection.setFrontendId(frontendLinkDTO.getFrontendId());
         linkCollection.setPosition(frontendLinkDTO.getPosition());
         linkCollection.setUrl(frontendLinkDTO.getUrl());
         linkCollection.setText(frontendLinkDTO.getText());
@@ -386,6 +404,8 @@ public class LinkCollectionController {
 
                 // to ensure we send back the updated entry
                 if(link.getLinkCollectionId() == updatedEntry.getLinkCollectionId()){
+                    
+                    entity.setFrontendId(updatedEntry.getFrontendId());
                     entity.setUrl(updatedEntry.getUrl());
                     entity.setText(updatedEntry.getText());
                     entity.setPosition(updatedEntry.getPosition());
@@ -393,6 +413,7 @@ public class LinkCollectionController {
                     entity.setUniqueId(UUID.randomUUID().toString()); // only for frontend use
 
                 }else{
+                    entity.setFrontendId(link.getFrontendId());
                     entity.setUrl(link.getUrl());
                     entity.setText(link.getText());
                     entity.setPosition(link.getPosition());
@@ -463,6 +484,7 @@ public class LinkCollectionController {
         LinkCollection linkCollection = new LinkCollection();
         // UUID linkCollectionId = UUID.randomUUID();
         // linkCollection.setLinkCollectionId(linkCollectionId);
+        linkCollection.setFrontendId(linkCollectionDTO.getFrontendId());
         linkCollection.setContentBoxId(contentBoxId);
         linkCollection.setPosition(numberOfEntries);
         linkCollection.setUrl(linkCollectionDTO.getUrl());
@@ -556,6 +578,7 @@ public class LinkCollectionController {
         updatedLinkCollection.setContentBoxId(desiredLinkCollection.getContentBoxId());
         updatedLinkCollection.setPosition(desiredLinkCollection.getPosition());
 
+        updatedLinkCollection.setFrontendId(entity.getFrontendId());
         updatedLinkCollection.setUrl(entity.getUrl());
         updatedLinkCollection.setText(entity.getText());
 
@@ -611,6 +634,8 @@ public class LinkCollectionController {
         Boolean linkGotDeleted = linkCollectionService.delete(actualLinkCollectionToDelete);
         if(linkGotDeleted){
             LinkWithinCollection deletedLink = new LinkWithinCollection();
+
+            deletedLink.setFrontendId(actualLinkCollectionToDelete.getFrontendId());
             deletedLink.setUrl(actualLinkCollectionToDelete.getUrl());
             deletedLink.setText(actualLinkCollectionToDelete.getText());
             deletedLink.setPosition(actualLinkCollectionToDelete.getPosition());
