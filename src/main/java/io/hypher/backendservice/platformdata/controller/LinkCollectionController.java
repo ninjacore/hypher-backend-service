@@ -606,6 +606,49 @@ public class LinkCollectionController {
         }
     }
 
+    @DeleteMapping("/linkCollection/link/delete")
+    public LinkWithinCollection deleteByHandleAndFrontendId(
+        @RequestParam String handle, 
+        @RequestParam String frontendId
+    )
+    throws ResourceNotFoundException, DatabaseException{
+
+        // find profile by handle
+        Collection<Profile> profiles = profileService.findByHandle(handle).orElseThrow(() -> new ResourceNotFoundException("Profile not found"));
+
+        Profile profile = profiles.iterator().next();
+        UUID profileId = profile.getProfileId();
+
+        // find linkCollections by profileId
+        List<LinkCollectionWithProfileId> linkCollections = linkCollectionService.findByProfileId(profileId).orElseThrow(() -> new ResourceNotFoundException("No LinkCollection found for this profile"));
+
+        // get the one with the right frontendId and handle (by profileId)
+        LinkCollectionWithProfileId linkCollectionToDelete = linkCollections.stream()
+            .filter(lc -> lc.getFrontendId().equals(frontendId))
+            .filter(lc -> lc.getProfileId().equals(profileId))
+            .findFirst().orElseThrow(() -> new ResourceNotFoundException("No link found with this frontendId"));
+
+        
+        LinkCollection actualLinkCollectionToDelete = linkCollectionService.findById(linkCollectionToDelete.getLinkCollectionId()).orElseThrow(() -> new ResourceNotFoundException("Cannot delete: LinkCollection not found"));
+
+        // Perform deletion and return result
+        Boolean linkGotDeleted = linkCollectionService.delete(actualLinkCollectionToDelete);
+        if(linkGotDeleted){
+            LinkWithinCollection deletedLink = new LinkWithinCollection();
+
+            deletedLink.setFrontendId(actualLinkCollectionToDelete.getFrontendId());
+            deletedLink.setUrl(actualLinkCollectionToDelete.getUrl());
+            deletedLink.setText(actualLinkCollectionToDelete.getText());
+            deletedLink.setPosition(actualLinkCollectionToDelete.getPosition());
+            
+            return deletedLink;
+        }else{
+            throw new DatabaseException("Could not delete link");
+        } 
+
+
+    }
+
     @DeleteMapping("/linkCollection/link")
     public LinkWithinCollection deleteLinkByHandle(
         @RequestParam String handle, 
