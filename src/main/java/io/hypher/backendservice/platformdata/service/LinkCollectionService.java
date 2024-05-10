@@ -42,17 +42,27 @@ public class LinkCollectionService {
     }
 
     public Optional<List<LinkCollectionWithProfileId>> findByProfileId(UUID profileId){
-        return Optional.of(linkCollectionWithProfileIdRepository.findAllByProfileId(profileId));
+        // return Optional.of(linkCollectionWithProfileIdRepository.findAllByProfileId(profileId));
+        
+        // always return ordered by position
+        return Optional.of(linkCollectionWithProfileIdRepository.findAllByProfileIdOrderByPosition(profileId));
     }
 
     public Optional<List<LinkCollectionWithPositions>> 
     findByHandleAndPosition(String profileHandle, Integer contentBoxPosition){
-        return Optional.of(linkCollectionWithPositionsRepository.findAllByProfileHandleAndContentBoxPosition(profileHandle, String.valueOf(contentBoxPosition)));
+        // return Optional.of(linkCollectionWithPositionsRepository.findAllByProfileHandleAndContentBoxPosition(profileHandle, String.valueOf(contentBoxPosition)));
+
+        // always return ordered by position
+        return Optional.of(linkCollectionWithPositionsRepository.findAllByProfileHandleAndContentBoxPositionOrderByPositionDesc(profileHandle, String.valueOf(contentBoxPosition)));
     }
 
 
     public List<LinkCollection> findAll(){
         return linkCollectionRepository.findAll();
+
+        // always return ordered by position
+        // return linkCollectionRepository.findAllOrderByPosition();
+
     }
 
     public Boolean delete(LinkCollection linkCollection){

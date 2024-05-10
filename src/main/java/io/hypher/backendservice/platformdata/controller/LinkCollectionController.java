@@ -63,7 +63,7 @@ public class LinkCollectionController {
     }
 
     @PostMapping("/linkCollection")
-    public Optional<List<LinkCollection>> createCollectionByHandle(
+    public Optional<List<LinkWithinCollection>> createCollectionByHandle(
         @RequestParam String handle, 
         @RequestParam String contentBoxPosition,
         @RequestBody List<LinkWithinCollection> listOfFrontendLinkDTOs
@@ -98,7 +98,33 @@ public class LinkCollectionController {
             linkCollections.add(linkCollection);
         }
 
-        return linkCollectionService.saveAll(linkCollections);
+        // return linkCollectionService.saveAll(linkCollections);
+
+        // prep and return created collection
+        List<LinkWithinCollection> listForClient = new ArrayList<>();
+
+
+        for(Integer counter = 0; counter < linkCollections.size(); counter++) {
+            LinkCollection link = linkCollections.get(counter);
+            LinkWithinCollection entity = new LinkWithinCollection();
+
+            entity.setFrontendId(link.getFrontendId());
+            entity.setUrl(link.getUrl());
+            entity.setText(link.getText());
+            entity.setPosition(link.getPosition());
+            // entity.setUniqueId(Long.valueOf(counter));
+            entity.setUniqueId(UUID.randomUUID().toString()); // only for frontend use
+            
+            listForClient.add(entity);
+        }
+        
+        // sort by position in descending order
+        listForClient.sort((LinkWithinCollection a, LinkWithinCollection b) -> a.getPosition().compareTo(b.getPosition()));        
+        
+        return Optional.of(
+            listForClient
+        );
+
     }
 
     @PostMapping("/linkCollection/link")
@@ -240,7 +266,14 @@ public class LinkCollectionController {
             
         }
 
+        // return linkCollectionDTO;
+
+        // sort by position (descending)
+        linkCollectionDTO.sort((LinkWithinCollection a, LinkWithinCollection b) -> a.getPosition().compareTo(b.getPosition()));        
+
         return linkCollectionDTO;
+
+
 
     }
 
@@ -324,8 +357,14 @@ public class LinkCollectionController {
             
             listForClient.add(entity);
         }
+
+        // sort by position in descending order
+        listForClient.sort((LinkWithinCollection a, LinkWithinCollection b) -> a.getPosition().compareTo(b.getPosition()));        
         
-        return Optional.of(listForClient);
+        // return in descending order
+        return Optional.of(
+            listForClient
+        );
     }
 
 

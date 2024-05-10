@@ -13,5 +13,7 @@ import io.hypher.backendservice.platformdata.model.LinkCollection;
 public interface LinkCollectionRepository extends JpaRepository<LinkCollection, UUID>{
 
     List<LinkCollection> deleteByContentBoxId(UUID contentBoxId);
+    // List<LinkCollection> saveAllOrderByPositionDesc(List<LinkCollection> linkCollections);
+    // List<LinkCollection> findAllOrderByPosition();
     
 }
