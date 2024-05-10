@@ -27,10 +27,11 @@ public class LinkCollectionService {
     @Autowired
     private LinkCollectionWithPositionsRepository linkCollectionWithPositionsRepository;
 
-    public LinkCollection save(LinkCollection linkCollection){
+    public Optional<LinkCollection> save(LinkCollection linkCollection){
         LinkCollection savedLinkCollection = linkCollectionRepository.save(linkCollection);
-        // return Optional.of(savedLinkCollection);
-        return savedLinkCollection;
+        // return savedLinkCollection;
+
+        return Optional.of(savedLinkCollection);
     }
 
     public Optional<List<LinkCollection>> saveAll(List<LinkCollection> linkCollections){
@@ -42,17 +43,27 @@ public class LinkCollectionService {
     }
 
     public Optional<List<LinkCollectionWithProfileId>> findByProfileId(UUID profileId){
-        return Optional.of(linkCollectionWithProfileIdRepository.findAllByProfileId(profileId));
+        // return Optional.of(linkCollectionWithProfileIdRepository.findAllByProfileId(profileId));
+        
+        // always return ordered by position
+        return Optional.of(linkCollectionWithProfileIdRepository.findAllByProfileIdOrderByPosition(profileId));
     }
 
     public Optional<List<LinkCollectionWithPositions>> 
     findByHandleAndPosition(String profileHandle, Integer contentBoxPosition){
-        return Optional.of(linkCollectionWithPositionsRepository.findAllByProfileHandleAndContentBoxPosition(profileHandle, String.valueOf(contentBoxPosition)));
+        // return Optional.of(linkCollectionWithPositionsRepository.findAllByProfileHandleAndContentBoxPosition(profileHandle, String.valueOf(contentBoxPosition)));
+
+        // always return ordered by position
+        return Optional.of(linkCollectionWithPositionsRepository.findAllByProfileHandleAndContentBoxPositionOrderByPositionDesc(profileHandle, String.valueOf(contentBoxPosition)));
     }
 
 
     public List<LinkCollection> findAll(){
         return linkCollectionRepository.findAll();
+
+        // always return ordered by position
+        // return linkCollectionRepository.findAllOrderByPosition();
+
     }
 
     public Boolean delete(LinkCollection linkCollection){

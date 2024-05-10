@@ -59,11 +59,11 @@ public class LinkCollectionController {
 
     @PostMapping("/linkCollections")
     public Optional<LinkCollection> create(@RequestBody LinkCollection linkCollection) {
-        return Optional.of(linkCollectionService.save(linkCollection));
+        return linkCollectionService.save(linkCollection);
     }
 
     @PostMapping("/linkCollection")
-    public Optional<List<LinkCollection>> createCollectionByHandle(
+    public Optional<List<LinkWithinCollection>> createCollectionByHandle(
         @RequestParam String handle, 
         @RequestParam String contentBoxPosition,
         @RequestBody List<LinkWithinCollection> listOfFrontendLinkDTOs
@@ -98,11 +98,37 @@ public class LinkCollectionController {
             linkCollections.add(linkCollection);
         }
 
-        return linkCollectionService.saveAll(linkCollections);
+        // return linkCollectionService.saveAll(linkCollections);
+
+        // prep and return created collection
+        List<LinkWithinCollection> listForClient = new ArrayList<>();
+
+
+        for(Integer counter = 0; counter < linkCollections.size(); counter++) {
+            LinkCollection link = linkCollections.get(counter);
+            LinkWithinCollection entity = new LinkWithinCollection();
+
+            entity.setFrontendId(link.getFrontendId());
+            entity.setUrl(link.getUrl());
+            entity.setText(link.getText());
+            entity.setPosition(link.getPosition());
+            // entity.setUniqueId(Long.valueOf(counter));
+            entity.setUniqueId(UUID.randomUUID().toString()); // only for frontend use
+            
+            listForClient.add(entity);
+        }
+        
+        // sort by position in descending order
+        listForClient.sort((LinkWithinCollection a, LinkWithinCollection b) -> a.getPosition().compareTo(b.getPosition()));        
+        
+        return Optional.of(
+            listForClient
+        );
+
     }
 
     @PostMapping("/linkCollection/link")
-    public Optional<LinkCollection> createLinkByHandle(
+    public Optional<LinkWithinCollection> createLinkByHandle(
         @RequestParam String handle, 
         @RequestParam String contentBoxPosition,
         @RequestBody LinkWithinCollection frontendLinkDTO
@@ -135,7 +161,24 @@ public class LinkCollectionController {
             linkCollection.setUrl(frontendLinkDTO.getUrl());
             linkCollection.setText(frontendLinkDTO.getText());
 
-            return Optional.of(linkCollectionService.save(linkCollection));            
+            // return Optional.of(linkCollectionService.save(linkCollection));    
+                
+            // save the new linkCollection entry
+            LinkCollection createdLink = linkCollectionService.save(linkCollection).orElseThrow(() -> new DatabaseException("Could not create link collection entry"));
+
+            // prep and return created collection
+            LinkWithinCollection linkForClient = new LinkWithinCollection();
+            linkForClient.setFrontendId(createdLink.getFrontendId());
+            linkForClient.setUrl(createdLink.getUrl());
+            linkForClient.setText(createdLink.getText());
+            linkForClient.setPosition(createdLink.getPosition());
+            linkForClient.setUniqueId(UUID.randomUUID().toString()); // only for frontend use
+
+            return Optional.of(
+                linkForClient
+            );
+
+
         }
 
         List<ContentBox> targetContentBoxes = new ArrayList<>();
@@ -168,7 +211,20 @@ public class LinkCollectionController {
             linkCollection.setUrl(frontendLinkDTO.getUrl());
             linkCollection.setText(frontendLinkDTO.getText());
 
-            return Optional.of(linkCollectionService.save(linkCollection));  
+            LinkCollection createdLink = linkCollectionService.save(linkCollection).orElseThrow(() -> new DatabaseException("Could not create link collection entry"));
+
+            // prep and return created collection
+            LinkWithinCollection linkForClient = new LinkWithinCollection();
+            linkForClient.setFrontendId(createdLink.getFrontendId());
+            linkForClient.setUrl(createdLink.getUrl());
+            linkForClient.setText(createdLink.getText());
+            linkForClient.setPosition(createdLink.getPosition());
+            linkForClient.setUniqueId(UUID.randomUUID().toString()); // only for frontend use
+    
+            return Optional.of(
+                linkForClient
+            );
+
         }
 
         // create new linkCollection entry for that content box id
@@ -180,7 +236,20 @@ public class LinkCollectionController {
         linkCollection.setText(frontendLinkDTO.getText());
 
         // save the new linkCollection entry
-        return Optional.of(linkCollectionService.save(linkCollection));
+        // return Optional.of(linkCollectionService.save(linkCollection));
+        LinkCollection createdLink = linkCollectionService.save(linkCollection).orElseThrow(() -> new DatabaseException("Could not create link collection entry"));
+
+        // prep and return created collection
+        LinkWithinCollection linkForClient = new LinkWithinCollection();
+        linkForClient.setFrontendId(createdLink.getFrontendId());
+        linkForClient.setUrl(createdLink.getUrl());
+        linkForClient.setText(createdLink.getText());
+        linkForClient.setPosition(createdLink.getPosition());
+        linkForClient.setUniqueId(UUID.randomUUID().toString()); // only for frontend use
+
+        return Optional.of(
+            linkForClient
+        );
     }
 
 
@@ -240,7 +309,14 @@ public class LinkCollectionController {
             
         }
 
+        // return linkCollectionDTO;
+
+        // sort by position (descending)
+        linkCollectionDTO.sort((LinkWithinCollection a, LinkWithinCollection b) -> a.getPosition().compareTo(b.getPosition()));        
+
         return linkCollectionDTO;
+
+
 
     }
 
@@ -324,8 +400,14 @@ public class LinkCollectionController {
             
             listForClient.add(entity);
         }
+
+        // sort by position in descending order
+        listForClient.sort((LinkWithinCollection a, LinkWithinCollection b) -> a.getPosition().compareTo(b.getPosition()));        
         
-        return Optional.of(listForClient);
+        // return in descending order
+        return Optional.of(
+            listForClient
+        );
     }
 
 
@@ -392,7 +474,7 @@ public class LinkCollectionController {
         // update link in this linkCollection
         try {
             // continue once the entry has been updated...
-            LinkCollection updatedEntry = linkCollectionService.save(linkCollection);
+            LinkCollection updatedEntry = linkCollectionService.save(linkCollection).orElseThrow(() -> new DatabaseException("Could not update link"));
 
             // prep and return updated collection
             List<LinkCollectionWithProfileId> updatedLinkCollection = linkCollectionService.findByProfileId(profileId).orElseThrow(() -> new ResourceNotFoundException("Updated LinkCollection not found"));
@@ -491,7 +573,7 @@ public class LinkCollectionController {
         linkCollection.setText(linkCollectionDTO.getText());
 
         // save the new linkCollection entry
-        return Optional.of(linkCollectionService.save(linkCollection));
+        return linkCollectionService.save(linkCollection);
 
         //////////////////// OLD CODE ///////////////////
 
@@ -597,8 +679,8 @@ public class LinkCollectionController {
 
         // security: only save if body and path variable are the same
         if (updatedLinkCollection.getLinkCollectionId().toString().equals(linkCollectionId.toString())) {
-            LinkCollection updatedLinkCollectionFromDatabase = linkCollectionService.save(updatedLinkCollection);
-                // .orElseThrow(() -> new ResourceNotFoundException("LinkCollection not found"));
+            LinkCollection updatedLinkCollectionFromDatabase = linkCollectionService.save(updatedLinkCollection)
+                .orElseThrow(() -> new ResourceNotFoundException("LinkCollection not found"));
             return ResponseEntity.ok(updatedLinkCollectionFromDatabase);
 
         } else {

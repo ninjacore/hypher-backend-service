@@ -9,4 +9,6 @@ import io.hypher.backendservice.platformdata.model.LinkCollectionWithPositions;
 
 public interface LinkCollectionWithPositionsRepository extends JpaRepository<LinkCollectionWithPositions, UUID>{
     List<LinkCollectionWithPositions> findAllByProfileHandleAndContentBoxPosition(String profileHandle, String contentBoxPosition);
+    List<LinkCollectionWithPositions> findAllByProfileHandleAndContentBoxPositionOrderByPositionDesc(String profileHandle, String contentBoxPosition);
+
 }
