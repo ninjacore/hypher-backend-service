@@ -508,6 +508,9 @@ public class LinkCollectionController {
                 listForClient.add(entity);
             });
 
+            // sort by position in descending order
+            listForClient.sort((LinkWithinCollection a, LinkWithinCollection b) -> a.getPosition().compareTo(b.getPosition()));        
+
             
             return listForClient;
 
