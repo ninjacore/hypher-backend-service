@@ -231,7 +231,8 @@ public class LinkCollectionController {
         LinkCollection linkCollection = new LinkCollection();
         linkCollection.setContentBoxId(contentBoxId);
         linkCollection.setFrontendId(frontendLinkDTO.getFrontendId());
-        linkCollection.setPosition(numberOfEntries);
+        // linkCollection.setPosition(numberOfEntries);
+        linkCollection.setPosition(frontendLinkDTO.getPosition());
         linkCollection.setUrl(frontendLinkDTO.getUrl());
         linkCollection.setText(frontendLinkDTO.getText());
 
