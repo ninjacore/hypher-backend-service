@@ -62,6 +62,7 @@ public class LinkCollectionController {
         return linkCollectionService.save(linkCollection);
     }
 
+    // 'CREATE' endpoint for bulk creation
     @PostMapping("/linkCollection")
     public Optional<List<LinkWithinCollection>> createCollectionByHandle(
         @RequestParam String handle, 
@@ -98,7 +99,6 @@ public class LinkCollectionController {
             linkCollections.add(linkCollection);
         }
 
-        // return linkCollectionService.saveAll(linkCollections);
 
         // prep and return created collection
         List<LinkWithinCollection> listForClient = new ArrayList<>();
@@ -127,6 +127,7 @@ public class LinkCollectionController {
 
     }
 
+    // 'CREATE' endpoint for 'addLink'
     @PostMapping("/linkCollection/link")
     public Optional<LinkWithinCollection> createLinkByHandle(
         @RequestParam String handle, 
@@ -135,7 +136,7 @@ public class LinkCollectionController {
         )
     throws ResourceNotFoundException, DatabaseException{
             
-        // find user by handle
+        // find profile by handle
         Collection<Profile> profiles = profileService.findByHandle(handle).orElseThrow(() -> new ResourceNotFoundException("Profile not found"));
         Profile profile = profiles.iterator().next();
         UUID profileId = profile.getProfileId();
@@ -146,7 +147,7 @@ public class LinkCollectionController {
             matchingContentBoxes = contentBoxService.findByPosition(contentBoxPosition).orElseThrow(() -> new ResourceNotFoundException("ContentBox not found"));
 
         } catch (ResourceNotFoundException e) {
-            // if doesn't exist, create content box, then linkCollection
+            // if doesn't exist, create content box, then linkCollection (for when client is adding their first link)
             ContentBox contentBox = new ContentBox();
             contentBox.setContentBoxPosition(contentBoxPosition);
             contentBox.setProfileId(profileId);
@@ -160,8 +161,6 @@ public class LinkCollectionController {
             linkCollection.setPosition(frontendLinkDTO.getPosition());
             linkCollection.setUrl(frontendLinkDTO.getUrl());
             linkCollection.setText(frontendLinkDTO.getText());
-
-            // return Optional.of(linkCollectionService.save(linkCollection));    
                 
             // save the new linkCollection entry
             LinkCollection createdLink = linkCollectionService.save(linkCollection).orElseThrow(() -> new DatabaseException("Could not create link collection entry"));
@@ -735,6 +734,7 @@ public class LinkCollectionController {
 
     }
 
+    // 'delete' endpoint for legacy approach (by handle + position)
     @DeleteMapping("/linkCollection/link")
     public LinkWithinCollection deleteLinkByHandle(
         @RequestParam String handle, 
