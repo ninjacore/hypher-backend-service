@@ -16,7 +16,7 @@ import jakarta.transaction.Transactional;
 import io.hypher.backendservice.platformdata.repository.LinkCollectionWithPositionsRepository;
 
 @Service
-public class LinkCollectionService {
+public class LinkCollectionV2Service {
 
     @Autowired
     private LinkCollectionRepository linkCollectionRepository;

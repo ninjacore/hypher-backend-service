@@ -16,7 +16,7 @@ import io.hypher.backendservice.platformdata.model.ContentBox;
 // TODO: replace with domain service
 import io.hypher.backendservice.platformdata.service.ContentBoxService;
 
-import io.hypher.backendservice.platformdata.linkcollection.LinkCollectionService;
+import io.hypher.backendservice.platformdata.linkcollection.LinkCollectionV2Service;
 
 
 import io.hypher.backendservice.platformdata.service.ProfileService;
@@ -49,10 +49,10 @@ import org.springframework.web.bind.annotation.PutMapping;
 @CrossOrigin(origins = {"http://localhost:3000", "http://localhost:3001"})
 @RestController
 @RequestMapping("/api/v2")
-public class LinkCollectionController{
+public class LinkCollectionV2Controller{
 
     @Autowired
-    private LinkCollectionService linkCollectionService;
+    private LinkCollectionV2Service linkCollectionService;
 
     @Autowired
     private ProfileService profileService;    
@@ -65,11 +65,16 @@ public class LinkCollectionController{
     @PostMapping("/linkCollection/link")
     public ResponseEntity<LinkWithinCollectionDTO> createLinkByHandle(
         @RequestParam String handle, 
-        @RequestParam String contentBoxPosition,
+        @RequestParam(required = false) String contentBoxPosition,
         @RequestBody LinkWithinCollectionDTO frontendLinkDTO
         )
     throws ResourceNotFoundException, DatabaseException{
         
+        // check optional parameters
+        if(contentBoxPosition == null){
+            contentBoxPosition = "0"; // default
+        }
+
         // find profile for given handle
         UUID profileId;
         try {
@@ -106,11 +111,11 @@ public class LinkCollectionController{
 
     @GetMapping("/linkCollection")
     public ResponseEntity<List<LinkWithinCollectionDTO>> getLinkCollectionByHandle(
-        @RequestParam String handle,
-        @RequestParam String contentBoxPosition
+        @RequestParam String handle
     )
     throws DatabaseException, ResourceNotFoundException
     {
+        
         // find profile for given handle
         UUID profileId;
         try {
