@@ -1,4 +1,4 @@
-package io.hypher.backendservice.platformdata.repository;
+package io.hypher.backendservice.platformdata.linkcollection.repository;
 
 import java.util.UUID;
 import java.util.List;
@@ -7,7 +7,7 @@ import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import io.hypher.backendservice.platformdata.model.LinkCollection;
+import io.hypher.backendservice.platformdata.linkcollection.model.LinkCollection;
 
 @Repository
 public interface LinkCollectionRepository extends JpaRepository<LinkCollection, UUID>{
