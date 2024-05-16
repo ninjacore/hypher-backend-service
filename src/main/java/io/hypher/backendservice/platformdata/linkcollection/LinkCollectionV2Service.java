@@ -7,13 +7,11 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import io.hypher.backendservice.platformdata.model.LinkCollection;
-import io.hypher.backendservice.platformdata.model.LinkCollectionWithProfileId;
-import io.hypher.backendservice.platformdata.model.LinkCollectionWithPositions;
-import io.hypher.backendservice.platformdata.repository.LinkCollectionRepository;
-import io.hypher.backendservice.platformdata.repository.LinkCollectionWithProfileIdRepository;
+import io.hypher.backendservice.platformdata.linkcollection.model.LinkCollection;
+import io.hypher.backendservice.platformdata.linkcollection.model.LinkCollectionWithProfileId;
+import io.hypher.backendservice.platformdata.linkcollection.repository.LinkCollectionRepository;
+import io.hypher.backendservice.platformdata.linkcollection.repository.LinkCollectionWithProfileIdRepository;
 import jakarta.transaction.Transactional;
-import io.hypher.backendservice.platformdata.repository.LinkCollectionWithPositionsRepository;
 
 @Service
 public class LinkCollectionV2Service {
@@ -23,9 +21,6 @@ public class LinkCollectionV2Service {
 
     @Autowired
     private LinkCollectionWithProfileIdRepository linkCollectionWithProfileIdRepository;
-
-    @Autowired
-    private LinkCollectionWithPositionsRepository linkCollectionWithPositionsRepository;
 
     public Optional<LinkCollection> save(LinkCollection linkCollection){
         

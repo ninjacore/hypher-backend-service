@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.ArrayList;
 import java.util.List;
 
+// only used for full ProfilePage load — will become obsolete
 public class LinkCollectionContentBox {
 
     String contentType;

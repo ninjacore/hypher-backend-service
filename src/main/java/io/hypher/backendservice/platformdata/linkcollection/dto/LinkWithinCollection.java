@@ -1,6 +1,6 @@
-package io.hypher.backendservice.platformdata.linkcollection;
+package io.hypher.backendservice.platformdata.linkcollection.dto;
 
-public class LinkWithinCollectionDTO {
+public class LinkWithinCollection {
     
     String url;
 
@@ -11,7 +11,7 @@ public class LinkWithinCollectionDTO {
     String frontendId;
 
 
-    public LinkWithinCollectionDTO() {
+    public LinkWithinCollection() {
     }
 
 
