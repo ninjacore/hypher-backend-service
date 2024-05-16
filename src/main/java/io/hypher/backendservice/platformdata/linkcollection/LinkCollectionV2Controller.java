@@ -61,7 +61,39 @@ public class LinkCollectionV2Controller{
     private ContentBoxService contentBoxService;
 
 
-    // CRUD functions /.
+    // api endpoints /.
+    @GetMapping("/linkCollection")
+    public ResponseEntity<List<LinkWithinCollectionDTO>> getLinkCollectionByHandle(
+        @RequestParam String handle
+    )
+    throws DatabaseException, ResourceNotFoundException
+    {
+        
+        // find profile for given handle
+        UUID profileId;
+        try {
+            profileId = getProfileIdFromHandle(handle);
+        } catch (ResourceNotFoundException e) {
+            throw new DatabaseException(e.getMessage());
+        }
+
+        // find linkCollection entries
+        List<LinkCollectionWithProfileId> extendedLinkCollection = 
+            linkCollectionService.findByProfileId(profileId)
+            .orElseThrow(() -> new ResourceNotFoundException("LinkCollection not found"));
+        
+        List<LinkWithinCollectionDTO> linkCollectionDtoForClient = new ArrayList<>();
+        for (LinkCollectionWithProfileId entry : extendedLinkCollection) {
+            LinkWithinCollectionDTO linkForClient = getDtoFromLinkCollectionWithProfileId(entry);
+            linkCollectionDtoForClient.add(linkForClient);
+        }
+
+        // sort by position (descending)
+        linkCollectionDtoForClient.sort((LinkWithinCollectionDTO a, LinkWithinCollectionDTO b) -> a.getPosition().compareTo(b.getPosition()));        
+
+        return ResponseEntity.ok(linkCollectionDtoForClient);
+    }
+
     @PostMapping("/linkCollection/link")
     public ResponseEntity<LinkWithinCollectionDTO> createLinkByHandle(
         @RequestParam String handle, 
@@ -102,20 +134,28 @@ public class LinkCollectionV2Controller{
         linkCollection.setText(frontendLinkDTO.getText());
 
         // create database entry
-        LinkCollection createdLink = linkCollectionService.save(linkCollection).orElseThrow(() -> new DatabaseException("Could not create link collection entry"));
+        LinkCollection createdLink = linkCollectionService.save(linkCollection)
+            .orElseThrow(() -> new DatabaseException("Could not create link collection entry"));
 
         LinkWithinCollectionDTO linkForClient = getDtoFromLinkCollection(createdLink);
 
         return ResponseEntity.ok(linkForClient);
     }
 
-    @GetMapping("/linkCollection")
-    public ResponseEntity<List<LinkWithinCollectionDTO>> getLinkCollectionByHandle(
-        @RequestParam String handle
+    @PutMapping("/linkCollection/update")
+    public ResponseEntity<List<LinkWithinCollectionDTO>> updateLinkCollectionByHandle
+    (
+        @RequestParam String handle, 
+        @RequestParam(required = false) String contentBoxPosition,
+        @RequestBody List<LinkWithinCollectionDTO> listOfFrontendLinkDTOs
     )
     throws DatabaseException, ResourceNotFoundException
     {
-        
+        // check optional parameters
+        if(contentBoxPosition == null){
+            contentBoxPosition = "0"; // default
+        }
+
         // find profile for given handle
         UUID profileId;
         try {
@@ -124,21 +164,142 @@ public class LinkCollectionV2Controller{
             throw new DatabaseException(e.getMessage());
         }
 
-        // find linkCollection entries
-        List<LinkCollectionWithProfileId> extendedLinkCollection = linkCollectionService.findByProfileId(profileId).orElseThrow(() -> new ResourceNotFoundException("LinkCollection not found"));
+        // find content box (if none is found an 404 will be thrown)
+        UUID contentBoxId = getContentBoxId(profileId, contentBoxPosition);
         
-        List<LinkWithinCollectionDTO> linkCollectionDtoForClient = new ArrayList<>();
-        for (LinkCollectionWithProfileId entry : extendedLinkCollection) {
-            LinkWithinCollectionDTO linkForClient = getDtoFromLinkCollectionWithProfileId(entry);
-            linkCollectionDtoForClient.add(linkForClient);
+        // prepare bulk update
+        List<LinkCollection> linkCollectionUpdate = new ArrayList<>();
+        for (LinkWithinCollectionDTO link : listOfFrontendLinkDTOs) {
+            
+            // create the updatd linkCollection entry for that content box id
+            LinkCollection linkCollectionEntry = new LinkCollection();
+            linkCollectionEntry.setFrontendId(link.getFrontendId());
+            linkCollectionEntry.setContentBoxId(contentBoxId);
+            linkCollectionEntry.setPosition(link.getPosition());
+            linkCollectionEntry.setUrl(link.getUrl());
+            linkCollectionEntry.setText(link.getText());
+
+            linkCollectionUpdate.add(linkCollectionEntry);
         }
 
-        // sort by position (descending)
-        linkCollectionDtoForClient.sort((LinkWithinCollectionDTO a, LinkWithinCollectionDTO b) -> a.getPosition().compareTo(b.getPosition()));        
+        // all entries have to be deleted to avert inserts instead of updates
+        List<LinkCollection> deletedRecords = linkCollectionService
+            .deleteAllByContentBoxId(contentBoxId)
+            .orElseThrow(
+                () -> new DatabaseException("Could not complete link collection update")
+            );
+        // Note: if switching to multiple LinkCollections per user this won't be feasible anymore
 
-        return ResponseEntity.ok(linkCollectionDtoForClient);
+        // perform update
+        List<LinkCollection> updatedLinkCollection = linkCollectionService
+            .saveAll(linkCollectionUpdate)
+            .orElseThrow( () -> new DatabaseException("Could not update link collection"));
+
+        // prepare response
+        List<LinkWithinCollectionDTO> listForClient = new ArrayList<>();
+
+        updatedLinkCollection.forEach(entry -> {
+            LinkWithinCollectionDTO linkForClient = getDtoFromLinkCollection(entry);
+            listForClient.add(linkForClient);
+        });
+
+        // sort by position in descending order
+        listForClient.sort((LinkWithinCollectionDTO a, LinkWithinCollectionDTO b) -> a.getPosition().compareTo(b.getPosition()));                  
+        
+        return ResponseEntity.ok(listForClient);
     }
-    // CRUD functions ./
+
+    @PutMapping("/linkCollection/link/update")
+    public ResponseEntity<LinkWithinCollectionDTO> updateLinkByHandle(
+        @RequestParam String handle, 
+        @RequestParam(required = false) String contentBoxPosition,
+        @RequestBody LinkWithinCollectionDTO frontendLinkDTO
+    )
+    throws DatabaseException, ResourceNotFoundException
+    {
+
+        // check optional parameters
+        if(contentBoxPosition == null){
+            contentBoxPosition = "0"; // default
+        }
+
+        // find profile for given handle
+        UUID profileId;
+        try {
+            profileId = getProfileIdFromHandle(handle);
+        } catch (ResourceNotFoundException e) {
+            throw new DatabaseException(e.getMessage());
+        }
+
+        // find content box (if none is found an 404 will be thrown)
+        UUID contentBoxId = getContentBoxId(profileId, contentBoxPosition);
+        
+        // prepare linkCollection entry
+        LinkCollection linkCollection = new LinkCollection();
+        linkCollection.setContentBoxId(contentBoxId);
+        linkCollection.setFrontendId(frontendLinkDTO.getFrontendId());
+        linkCollection.setPosition(frontendLinkDTO.getPosition());
+        linkCollection.setUrl(frontendLinkDTO.getUrl());
+        linkCollection.setText(frontendLinkDTO.getText());
+
+        // create database entry
+        LinkCollection updatedLink = linkCollectionService.save(linkCollection)
+            .orElseThrow(() -> new DatabaseException("Could not update link collection entry"));
+
+        LinkWithinCollectionDTO linkForClient = getDtoFromLinkCollection(updatedLink);
+
+        return ResponseEntity.ok(linkForClient);
+    }
+
+    @DeleteMapping("/linkCollection/link/delete")
+    public ResponseEntity<LinkWithinCollectionDTO> deleteByHandleAndFrontendId(
+        @RequestParam String handle, 
+        @RequestParam String frontendId
+    )
+    throws ResourceNotFoundException, DatabaseException{
+
+
+
+
+
+        // find profile for given handle
+        UUID profileId;
+        try {
+            profileId = getProfileIdFromHandle(handle);
+        } catch (ResourceNotFoundException e) {
+            throw new DatabaseException(e.getMessage());
+        }
+
+        // find linkCollections by profileId
+        List<LinkCollectionWithProfileId> extendedLinkCollection = 
+            linkCollectionService.findByProfileId(profileId)
+            .orElseThrow(() -> new ResourceNotFoundException("LinkCollection not found"));
+
+        // get the one with the right frontendId and handle (by profileId)
+        LinkCollectionWithProfileId linkToDelete = extendedLinkCollection.stream()
+            .filter(lc -> lc.getFrontendId().equals(frontendId))
+            .filter(lc -> lc.getProfileId().equals(profileId))
+            .findFirst()
+            .orElseThrow(() -> new ResourceNotFoundException("No link found with this frontendId"));
+
+        // prepare item for deletion
+        LinkCollection linkCollectionToDelete = getLinkCollectionFromLinkCollectionWithProfileId(linkToDelete);
+
+
+        // Perform deletion and return result
+        Boolean linkGotDeleted = linkCollectionService.delete(linkCollectionToDelete);
+
+        if(linkGotDeleted){
+            LinkWithinCollectionDTO linkForClient = getDtoFromLinkCollectionWithProfileId(linkToDelete);
+            return ResponseEntity.ok(linkForClient);
+        } else {
+            throw new DatabaseException("Could not delete link collection entry");
+        }
+
+        
+    }
+
+    // api endpoints ./
 
 
     // Data Support Functions /.
@@ -216,6 +377,18 @@ public class LinkCollectionV2Controller{
         linkForClient.setPosition(linkCollectionEntry.getPosition());
 
         return linkForClient;
+    }
+
+    private LinkCollection getLinkCollectionFromLinkCollectionWithProfileId(LinkCollectionWithProfileId linkCollectionEntry){
+        LinkCollection targetLinkCollection = new LinkCollection();
+        targetLinkCollection.setContentBoxId(linkCollectionEntry.getContentBoxId());
+        targetLinkCollection.setLinkCollectionId(linkCollectionEntry.getLinkCollectionId());
+        targetLinkCollection.setFrontendId(linkCollectionEntry.getFrontendId());
+        targetLinkCollection.setPosition(linkCollectionEntry.getPosition());
+        targetLinkCollection.setUrl(linkCollectionEntry.getUrl());
+        targetLinkCollection.setText(linkCollectionEntry.getText());
+
+        return targetLinkCollection;
     }
 
     // Data Support Functions ./

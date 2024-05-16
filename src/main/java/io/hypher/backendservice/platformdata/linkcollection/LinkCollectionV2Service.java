@@ -33,12 +33,36 @@ public class LinkCollectionV2Service {
         return Optional.of(savedLinkCollection);
     }
 
+    public Optional<List<LinkCollection>> saveAll(List<LinkCollection> linkCollections){
+        return Optional.of(linkCollectionRepository.saveAll(linkCollections));
+    }
+
+    public Optional<LinkCollection> findById(UUID linkCollectionId){
+        return linkCollectionRepository.findById(linkCollectionId);
+    }
+
     public Optional<List<LinkCollectionWithProfileId>> findByProfileId(UUID profileId){        
         // always return ordered by position
         return Optional.of(linkCollectionWithProfileIdRepository.findAllByProfileIdOrderByPosition(profileId));
     }
 
+    public Boolean delete(LinkCollection linkCollection){
 
+        boolean linkCollectionDeleted;
 
+        try {
+            linkCollectionRepository.delete(linkCollection);
+            linkCollectionDeleted = true;
+        } catch (Exception e) {
+            linkCollectionDeleted = false;
+        }
+
+        return linkCollectionDeleted;
+    }
+
+    @Transactional
+    public Optional<List<LinkCollection>> deleteAllByContentBoxId(UUID contentBoxId){
+        return Optional.of(linkCollectionRepository.deleteByContentBoxId(contentBoxId));
+    }
 
 }
