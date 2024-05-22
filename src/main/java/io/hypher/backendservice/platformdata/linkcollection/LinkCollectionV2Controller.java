@@ -13,7 +13,6 @@ import io.hypher.backendservice.platformdata.model.ContentBox;
 // TODO: replace with domain service
 import io.hypher.backendservice.platformdata.service.ContentBoxService;
 
-import io.hypher.backendservice.platformdata.linkcollection.LinkCollectionV2Service;
 import io.hypher.backendservice.platformdata.service.ProfileService;
 import io.hypher.backendservice.platformdata.utillity.error.DatabaseException;
 import io.hypher.backendservice.platformdata.utillity.error.ResourceNotFoundException;
@@ -22,14 +21,10 @@ import io.hypher.backendservice.platformdata.utillity.error.WrongBodyException;
 import java.util.Optional;
 import java.util.UUID;
 
-import javax.swing.text.html.Option;
-
 import java.util.ArrayList;
 import java.util.Collection;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.actuate.autoconfigure.metrics.MetricsProperties.Data;
-import org.springframework.boot.autoconfigure.integration.IntegrationProperties.Error;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -159,7 +154,7 @@ public class LinkCollectionV2Controller{
             throw new DatabaseException(e.getMessage());
         }
 
-        // find content box (if none is found an 404 will be thrown)
+        // find content box (if none is found a 404 will be thrown)
         UUID contentBoxId = getContentBoxId(profileId, contentBoxPosition);
 
         // prepare bulk update
@@ -226,7 +221,7 @@ public class LinkCollectionV2Controller{
             throw new DatabaseException(e.getMessage());
         }
 
-        // find content box (if none is found an 404 will be thrown)
+        // find content box (if none is found a 404 will be thrown)
         UUID contentBoxId = getContentBoxId(profileId, contentBoxPosition);
 
         // prepare linkCollection entry
@@ -253,10 +248,6 @@ public class LinkCollectionV2Controller{
     )
     throws ResourceNotFoundException, DatabaseException{
 
-
-
-
-
         // find profile for given handle
         UUID profileId;
         try {
@@ -279,7 +270,6 @@ public class LinkCollectionV2Controller{
 
         // prepare item for deletion
         LinkCollection linkCollectionToDelete = getLinkCollectionFromLinkCollectionWithProfileId(linkToDelete);
-
 
         // Perform deletion and return result
         Boolean linkGotDeleted = linkCollectionService.delete(linkCollectionToDelete);

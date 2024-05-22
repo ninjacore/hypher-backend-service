@@ -7,10 +7,10 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import io.hypher.backendservice.platformdata.model.FeaturedContent;
-import io.hypher.backendservice.platformdata.model.FeaturedContentView;
-import io.hypher.backendservice.platformdata.repository.FeaturedContentRepository;
-import io.hypher.backendservice.platformdata.repository.FeaturedContentViewRepository;
+import io.hypher.backendservice.platformdata.featuredcontent.model.FeaturedContent;
+import io.hypher.backendservice.platformdata.featuredcontent.repository.FeaturedContentRepository;
+import io.hypher.backendservice.platformdata.featuredcontent.model.FeaturedContentWithProfileId;
+import io.hypher.backendservice.platformdata.featuredcontent.repository.FeaturedContentWithProfileIdRepository;;
 
 @Service
 public class FeaturedContentService {
@@ -19,7 +19,7 @@ public class FeaturedContentService {
     private FeaturedContentRepository featuredContentRepository;
 
     @Autowired
-    private FeaturedContentViewRepository featuredContentViewRepository;
+    private FeaturedContentWithProfileIdRepository featuredContentViewRepository;
 
     public Optional<FeaturedContent> save(FeaturedContent featuredContent){
         FeaturedContent savedFeaturedContent = featuredContentRepository.save(featuredContent);
@@ -30,7 +30,7 @@ public class FeaturedContentService {
         return featuredContentRepository.findById(featuredContentId);
     }
 
-    public Optional<List<FeaturedContentView>> findByProfileId(UUID profileId){
+    public Optional<List<FeaturedContentWithProfileId>> findByProfileId(UUID profileId){
         return Optional.of(featuredContentViewRepository.findAllByProfileId(profileId));
     }
 

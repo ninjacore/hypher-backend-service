@@ -1,4 +1,4 @@
-package io.hypher.backendservice.platformdata.model;
+package io.hypher.backendservice.platformdata.featuredcontent.model;
 
 import java.util.UUID;
 
@@ -17,6 +17,9 @@ public class FeaturedContent {
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id")
     UUID featuredContentId;
+
+    @Column(name = "frontend_id")
+    String frontendId;
 
     @Column(name = "content_box_id")
     UUID contentBoxId;
@@ -39,9 +42,10 @@ public class FeaturedContent {
     // default constructor (hibernate.InstantiationException)
     public FeaturedContent(){}
 
-    public FeaturedContent(UUID featuredContentId, UUID contentBoxId, String title, String description, String url,
-            Integer position, String category) {
+    public FeaturedContent(UUID featuredContentId, String frontendId, UUID contentBoxId, String title,
+            String description, String url, Integer position, String category) {
         this.featuredContentId = featuredContentId;
+        this.frontendId = frontendId;
         this.contentBoxId = contentBoxId;
         this.title = title;
         this.description = description;
@@ -56,6 +60,14 @@ public class FeaturedContent {
 
     public void setFeaturedContentId(UUID featuredContentId) {
         this.featuredContentId = featuredContentId;
+    }
+
+    public String getFrontendId() {
+        return frontendId;
+    }
+
+    public void setFrontendId(String frontendId) {
+        this.frontendId = frontendId;
     }
 
     public UUID getContentBoxId() {
@@ -105,7 +117,5 @@ public class FeaturedContent {
     public void setCategory(String category) {
         this.category = category;
     }
-
-    
-
+ 
 }

@@ -5,8 +5,9 @@ import java.util.List;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.hypher.backendservice.platformdata.dto.FeaturedContentUpdate;
-import io.hypher.backendservice.platformdata.model.FeaturedContent;
-import io.hypher.backendservice.platformdata.model.FeaturedContentView;
+import io.hypher.backendservice.platformdata.featuredcontent.model.FeaturedContent;
+// import io.hypher.backendservice.platformdata.model.FeaturedContentView;
+import io.hypher.backendservice.platformdata.featuredcontent.model.FeaturedContentWithProfileId;
 import io.hypher.backendservice.platformdata.model.Profile;
 
 import io.hypher.backendservice.platformdata.service.FeaturedContentService;
@@ -60,7 +61,7 @@ public class FeaturedContentController {
     }
 
     @GetMapping("/featuredContent")
-    public List<FeaturedContentView> getByProfileHandle(
+    public List<FeaturedContentWithProfileId> getByProfileHandle(
         @RequestParam String handle
         ) throws ResourceNotFoundException {
         
@@ -81,10 +82,10 @@ public class FeaturedContentController {
         UUID profileId = profile.getProfileId();
 
         // find featured content view by profile id
-        List<FeaturedContentView> featuredContents = featuredContentService.findByProfileId(profileId).orElseThrow(() -> new ResourceNotFoundException("FeaturedContent not found"));  
+        List<FeaturedContentWithProfileId> featuredContents = featuredContentService.findByProfileId(profileId).orElseThrow(() -> new ResourceNotFoundException("FeaturedContent not found"));  
 
         // get the one with the right position
-        FeaturedContentView desiredFeaturedContent = featuredContents.stream()
+        FeaturedContentWithProfileId desiredFeaturedContent = featuredContents.stream()
             .filter(featuredContent -> featuredContent.getPosition() == Integer.parseInt(position))
             .findFirst()
             .orElseThrow(() -> new ResourceNotFoundException("FeaturedContent not found"));
